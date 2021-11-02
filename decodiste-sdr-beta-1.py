@@ -58,8 +58,9 @@ fenetreprincipale.configure(bg='grey')
 # icone #
 #########
 
-fenetreprincipale.iconbitmap('@antenne.xbm')
-
+#fenetreprincipale.iconbitmap('@antenne.xbm')
+icone = PhotoImage(file='@antenne.xbm')
+fenetreprincipale.iconphoto(True, icone)
 
 #####################################################################
 # 2               parametres par default                            #
