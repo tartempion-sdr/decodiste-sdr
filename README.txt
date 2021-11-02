@@ -11,10 +11,6 @@ ouvrez votre terminal. # ctrl+alt+t
 
 user@name:~$ git clone https://github.com/tartempion-sdr/decodiste-sdr.git
 
-user@name:~$ git branch
-
-user@name:~$ git switch master
-
 user@name:~$ cd decodiste-sdr
 
 user@name:~$ ls
