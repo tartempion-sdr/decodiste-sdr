@@ -58,7 +58,7 @@ fenetreprincipale.configure(bg='grey')
 # icone #
 #########
 
-#fenetreprincipale.iconbitmap('@/home/tartempion/Documents/python/sdr/antenne.xbm')
+fenetreprincipale.iconbitmap('@/antenne.xbm')
 
 
 #####################################################################
