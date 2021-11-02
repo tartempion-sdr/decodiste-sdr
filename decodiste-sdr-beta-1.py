@@ -19,7 +19,7 @@ discord```
 
 
 
-import matplotlib
+
 import time
 from os import wait
 import textwrap
@@ -58,7 +58,7 @@ fenetreprincipale.configure(bg='grey')
 # icone #
 #########
 
-fenetreprincipale.iconbitmap('@/home/tartempion/Documents/python/sdr/antenne.xbm')
+#fenetreprincipale.iconbitmap('@/home/tartempion/Documents/python/sdr/antenne.xbm')
 
 
 #####################################################################
