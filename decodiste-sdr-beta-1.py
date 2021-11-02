@@ -38,7 +38,7 @@ from subprocess import *
 ######################
 
 fenetreprincipale = Tk()
-fenetreprincipale.title('sdr-signale-(BETA_S)-(1.75)-2021')
+fenetreprincipale.title('decodiste-sdr-beta-1.75-2021')
 
 
 ####################################
@@ -191,7 +191,7 @@ def stop_rtl_fm():
     capture_output=True, shell = True, text = True)
     time.sleep(1.5)
     
-    #if killall rtl_fm return
+    
     
    
     
