@@ -58,7 +58,7 @@ fenetreprincipale.configure(bg='grey')
 # icone #
 #########
 
-fenetreprincipale.iconbitmap('@/antenne.xbm')
+fenetreprincipale.iconbitmap('@antenne.xbm')
 
 
 #####################################################################
