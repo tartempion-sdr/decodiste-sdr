@@ -119,7 +119,7 @@ def interrogeusb():
      
     else:
         text1.delete("1.0","end")
-        text1.insert(INSERT, "Device trouvé ! " + "\n" + str(idusb19.devicename) + "\n")
+        text1.insert(INSERT, "Device trouvé ! " + "\n" + str(idusb19.tunner) + "\n" + str(idusb19.devicename) + "\n")
 
 
 
