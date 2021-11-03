@@ -19,9 +19,9 @@ discord```
 
 
 
-
+import usb
 import time
-from os import wait
+from os import pipe, wait
 import textwrap
 from textwrap import *
 import sys
@@ -62,8 +62,69 @@ fenetreprincipale.configure(bg='grey')
 icone = PhotoImage(file='antenne.gif')
 fenetreprincipale.iconphoto(False, icone)
 
+
+############
+#  texte   #
+############
+
+text0 = Text(fenetreprincipale, border=4)
+text0.place(x=180, y=0, height=180, width=420)
+text1 = Text(fenetreprincipale, border=4)
+text1.place(x=180, y=180, height=180, width=420)
+
+
+###########################################
+# class Idusb: le device est il present ? #
+########################################### 
+
+class Idusb:
+   
+#class des idvendeur et idproducteur
+    
+    
+    def __init__(self, id_vendeur, id_producteur, _tunner, device_name):        
+        
+        self.idvendeur = id_vendeur
+        self.idproducteur = id_producteur
+        self.tunner =_tunner
+        self.devicename = device_name
+
+idusb00 = Idusb(0x0bda, 0x2832, "all of them", "Generic RTL2832U (e.g. hama nano)") 
+idusb01 = Idusb(0x0bda, 0x2838, "E4000",       "ezcap USB 2.0 DVB-T/DAB/FM dongle") 
+idusb02 = Idusb(0x0ccd, 0x00a9, "FC0012",      "Terratec Cinergy T Stick Black (rev 1)") 
+idusb03 = Idusb(0x0ccd, 0x00b3, "FC0013", 	   "Terratec NOXON DAB/DAB+ USB dongle (rev 1)") 
+idusb04 = Idusb(0x0ccd, 0x00d3, "E4000", 	   "Terratec Cinergy T Stick RC (Rev.3)") 
+idusb05 = Idusb(0x0ccd, 0x00e0, "E4000", 	   "Terratec NOXON DAB/DAB+ USB dongle (rev 2)") 
+idusb06 = Idusb(0x185b, 0x0620, "E4000",       "Compro Videomate U620F") 
+idusb07 = Idusb(0x185b, 0x0650, "E4000",	   "Compro Videomate U650F") 
+idusb08 = Idusb(0x1f4d, 0xb803, "FC0012", 	   "GTek T803") 
+idusb09 = Idusb(0x1f4d, 0xc803, "FC0012", 	   "Lifeview LV5TDeluxe") 
+idusb10 = Idusb(0x1b80, 0xd3a4, "FC0013", 	   "Twintech UT-40") 
+idusb11 = Idusb(0x1d19, 0x1101, "FC2580",      "Dexatek DK DVB-T Dongle (Logilink VG0002A)") 
+idusb12 = Idusb(0x1d19, 0x1102, "?", 	       "Dexatek DK DVB-T Dongle (MSI DigiVox mini II V3.0)") 
+idusb13 = Idusb(0x1d19, 0x1103, "FC2580",      "Dexatek Technology Ltd. DK 5217 DVB-T Dongle") 
+idusb14 = Idusb(0x0458, 0x707f, "?", 	       "Genius TVGo DVB-T03 USB dongle (Ver. B)") 
+idusb15 = Idusb(0x1b80, 0xd393, "FC0012",      "GIGABYTE GT-U7300") 
+idusb16 = Idusb(0x1b80, 0xd394, "?", 	       "DIKOM USB-DVBT HD") 
+idusb17 = Idusb(0x1b80, 0xd395, "FC0012",      "Peak 102569AGPK") 
+idusb18 = Idusb(0x1b80, 0xd39d, "FC0012",      "SVEON STV20 DVB-T USB & FM")
+idusb19 = Idusb(0x0bda, 0x2838, "FC0012",      "Realtek Semiconductor Corp. RTL2838 DVB-T")
+
+def interrogeusb():
+
+    interroge = usb.core.find(idVendor=idusb19.idvendeur, idProduct=idusb19.idproducteur)  
+    if interroge is None:
+        text1.delete("1.0","end")
+        text1.insert(INSERT, "device non trouvé !", "\n")
+     
+    else:
+        text1.delete("1.0","end")
+        text1.insert(INSERT, "Device trouvé ! " + "\n" + str(idusb19.devicename) + "\n")
+
+
+
 #####################################################################
-# 2               parametres par default                            #
+#            class    parametres par default                        #
 #####################################################################
 
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
@@ -165,6 +226,8 @@ stop.place(x=60, y=0)
 # fonction #
 ############
 
+
+
 def change0demodulationwbfm():
     demodulation0[0] = "wbfm"
 
@@ -194,20 +257,19 @@ def stop_rtl_fm():
     
     
     
-   
     
 
 def start_rtl_fm(demodulation0, frequence0, sample_rate0, ppm0): 
     stop_rtl_fm()
+    interrogeusb()
     startoutput = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -p "+ str(ppm0.get()) + " | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
-    shell = True, text = True)
-    text.delete("1.0","end")
-    text.insert(INSERT, "terminal:" "\n") 
-    text.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0)+"\n")
-    text.insert(INSERT,"parametres utiliser: frequences   "+ str(frequence0.get())+"\n")
-    text.insert(INSERT,"parametres utiliser: samprate     "+ str(sample_rate0.get())+"\n")
-    text.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm0.get())+"\n")
-
+    shell = True, text = True) 
+    text0.delete("1.0","end")
+    text0.insert(INSERT, "terminal:" "\n") 
+    text0.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0)+"\n")
+    text0.insert(INSERT,"parametres utiliser: frequences   "+ str(frequence0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: samprate     "+ str(sample_rate0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm0.get())+"\n")
 
 def restart(Event):
     start_rtl_fm(demodulation0[0], frequence0, sample_rate0, ppm0)
@@ -219,7 +281,6 @@ ppm0.bind("<ButtonRelease-1>", restart)
 
 
 
-
 #    startoutput = subprocess.Popen(args="rtl_fm -M wbfm -f 100M -s 250000 -r 32k | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
 #    shell = True, text = True)    
     
@@ -227,12 +288,6 @@ ppm0.bind("<ButtonRelease-1>", restart)
 # ajoute volume , mute
 
 
-############
-#  texte 1 #
-############
-
-text = Text(fenetreprincipale, border=4)
-text.place(x=180, y=0, height=180, width=420)
 
 
 #################################
