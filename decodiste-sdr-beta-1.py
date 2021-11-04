@@ -111,6 +111,7 @@ idusb17 = AppareilUsb(0x1b80, 0xd395, "FC0012",      "Peak 102569AGPK")
 idusb18 = AppareilUsb(0x1b80, 0xd39d, "FC0012",      "SVEON STV20 DVB-T USB & FM")
 idusb19 = AppareilUsb(0x0bda, 0x2838, "FC0012",      "Realtek Semiconductor Corp. RTL2838 DVB-T")
 
+
 appareil = {0: idusb00, 
             1: idusb01,   
             2: idusb02, 
@@ -139,8 +140,8 @@ def interrogeusb():
     
     
     
-    interroge = usb.core.find(idVendor=appareil[19].idvendeur, idProduct=appareil[19].idproducteur)  
-    #interroge = usb.core.find(f"idVendor=appareil[{key}].idvendeur".format(key), f"idProduct=appareil[{key}].idproducteur".format(key))  
+    #interroge = usb.core.find(idVendor=appareil[19].idvendeur, idProduct=appareil[19].idproducteur)  
+    interroge = usb.core.find(idVendor=appareil[key].idvendeur, idProduct=appareil[key].idproducteur)  
     
     if interroge is None:
         text1.delete("1.0","end")
