@@ -70,7 +70,7 @@ fenetreprincipale.iconphoto(False, icone)
 text0 = Text(fenetreprincipale, border=4)
 text0.place(x=180, y=0, height=180, width=420)
 text1 = Text(fenetreprincipale, border=4)
-text1.place(x=180, y=180, height=180, width=420)
+text1.place(x=0, y=180, height=180, width=600)
 
 
 ###########################################
@@ -132,16 +132,33 @@ appareil = {0: idusb00,
             18: idusb18, 
             19: idusb19,}
 
-def interrogeusb():
 
+def interrogeusb():
+    
+    key = 19
+    
+    
+    
     interroge = usb.core.find(idVendor=appareil[19].idvendeur, idProduct=appareil[19].idproducteur)  
+    #interroge = usb.core.find(f"idVendor=appareil[{key}].idvendeur".format(key), f"idProduct=appareil[{key}].idproducteur".format(key))  
+    
     if interroge is None:
         text1.delete("1.0","end")
-        text1.insert(INSERT, "device non trouvé !", "\n")
-        print(appareil[19].idvendeur, appareil[19].idproducteur) 
+        text1.insert(INSERT, "Liste de Devices interogés ... " + "\n" + "\n") 
+        text1.insert(INSERT,  " idvendeur = " + str(hex(appareil[key].idvendeur)) + "\n" 
+                            + " idproducteur = " + str(hex(appareil[key].idproducteur)) + "\n"    
+                            + " tunner = " + str(appareil[key].tunner) + "\n"  
+                            + " device name = " + str(appareil[key].devicename) + "\n" + "\n" 
+                            + " nombre de devices DVB-T interogé = " + str(key) + "\n"
+                            + " Device DVB-T non trouvé ou incompatible" + "\n"  )
+
     else:
         text1.delete("1.0","end")
-        text1.insert(INSERT, "Device trouvé ! " + "\n" + str(appareil[19].tunner) + "\n" + str(appareil[19].devicename) + "\n")
+        text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")
+        text1.insert(INSERT,  " idvendeur = " + str(hex(appareil[key].idvendeur)) + "\n"   
+                            + " idproducteur = " + str(hex(appareil[key].idproducteur))+ "\n"    
+                            + " tunner = " + str(appareil[key].tunner)+ "\n" + "\n"   
+                            + " device name = " + str(appareil[key].devicename)) 
 
 
 
