@@ -70,7 +70,7 @@ fenetreprincipale.iconphoto(False, icone)
 text0 = Text(fenetreprincipale, border=4)
 text0.place(x=180, y=0, height=180, width=420)
 text1 = Text(fenetreprincipale, border=4)
-text1.place(x=0, y=180, height=180, width=600)
+text1.place(x=0, y=180, height=200, width=600)
 
 
 ###########################################
@@ -90,8 +90,8 @@ class AppareilUsb:
         self.devicename = device_name
 
         
-idusb00 = AppareilUsb(0x0bda, 0x2832, "all of them", "Generic RTL2832U (e.g. hama nano)") 
-idusb01 = AppareilUsb(0x0bda, 0x2838, "E4000",       "ezcap USB 2.0 DVB-T/DAB/FM dongle") 
+
+idusb01 = AppareilUsb(0x0bda, 0x2832, "all of them", "Generic RTL2832U (e.g. hama nano)")
 idusb02 = AppareilUsb(0x0ccd, 0x00a9, "FC0012",      "Terratec Cinergy T Stick Black (rev 1)") 
 idusb03 = AppareilUsb(0x0ccd, 0x00b3, "FC0013", 	   "Terratec NOXON DAB/DAB+ USB dongle (rev 1)") 
 idusb04 = AppareilUsb(0x0ccd, 0x00d3, "E4000", 	   "Terratec Cinergy T Stick RC (Rev.3)") 
@@ -109,11 +109,11 @@ idusb15 = AppareilUsb(0x1b80, 0xd393, "FC0012",      "GIGABYTE GT-U7300")
 idusb16 = AppareilUsb(0x1b80, 0xd394, "?", 	       "DIKOM USB-DVBT HD") 
 idusb17 = AppareilUsb(0x1b80, 0xd395, "FC0012",      "Peak 102569AGPK") 
 idusb18 = AppareilUsb(0x1b80, 0xd39d, "FC0012",      "SVEON STV20 DVB-T USB & FM")
-idusb19 = AppareilUsb(0x0bda, 0x2838, "FC0012",      "Realtek Semiconductor Corp. RTL2838 DVB-T")
+idusb19 = AppareilUsb(0x0bda, 0x2838, "FC0012 ou E4000",      "Realtek Semiconductor Corp. RTL2838 DVB-T" + "\n" "               ou ezcap USB 2.0 DVB-T/DAB/FM dongle")
+idusb20 = AppareilUsb(0x0bda, 0x2838, "E4000 ou FC0012",       "ezcap USB 2.0 DVB-T/DAB/FM dongle" + "\n" "               ou Realtek Semiconductor Corp. RTL2838 DVB-T" ) 
+idusb21 = AppareilUsb(0x0000, 0x0000, "introuvable",       "introuvable") 
 
-
-appareil = {0: idusb00, 
-            1: idusb01,   
+appareil = {1: idusb01,   
             2: idusb02, 
             3: idusb03,
             4: idusb04, 
@@ -131,35 +131,55 @@ appareil = {0: idusb00,
             16: idusb16, 
             17: idusb17,
             18: idusb18, 
-            19: idusb19,}
+            19: idusb19,
+            20: idusb20,
+            21: idusb21,}
+
+ 
 
 
-def interrogeusb():
+def interrogeusb(key):
     
-    key = 19
+      
+    keysymbole = str("####################")
+     
     
+     
+     
+    while usb.core.find(idVendor=appareil[key].idvendeur, idProduct=appareil[key].idproducteur) is None:
+          
     
-    
-    #interroge = usb.core.find(idVendor=appareil[19].idvendeur, idProduct=appareil[19].idproducteur)  
-    interroge = usb.core.find(idVendor=appareil[key].idvendeur, idProduct=appareil[key].idproducteur)  
-    
-    if interroge is None:
+        
+        usb.core.find(idVendor=appareil[key].idvendeur, idProduct=appareil[key].idproducteur) 
+        
         text1.delete("1.0","end")
-        text1.insert(INSERT, "Liste de Devices interogés ... " + "\n" + "\n") 
+        text1.insert(INSERT, "Liste de Devices interogés ... " + " |" + str(keysymbole) + "|"
+        +  "\n" + "\n") 
         text1.insert(INSERT,  " idvendeur = " + str(hex(appareil[key].idvendeur)) + "\n" 
                             + " idproducteur = " + str(hex(appareil[key].idproducteur)) + "\n"    
                             + " tunner = " + str(appareil[key].tunner) + "\n"  
-                            + " device name = " + str(appareil[key].devicename) + "\n" + "\n" 
-                            + " nombre de devices DVB-T interogé = " + str(key) + "\n"
-                            + " Device DVB-T non trouvé ou incompatible" + "\n"  )
+                            + " device name = " + str(appareil[key].devicename) + "\n" 
+                            + " Device DVB-T non trouvé ou incompatible" + "\n"  + "\n"
+                            + " nombre de devices DVB-T interogé = " + str(key - 1) + "\n" + "\n" + "\n")  
+        
+        key = key + 1 
 
     else:
+                
         text1.delete("1.0","end")
         text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")
         text1.insert(INSERT,  " idvendeur = " + str(hex(appareil[key].idvendeur)) + "\n"   
                             + " idproducteur = " + str(hex(appareil[key].idproducteur))+ "\n"    
-                            + " tunner = " + str(appareil[key].tunner)+ "\n" + "\n"   
-                            + " device name = " + str(appareil[key].devicename)) 
+                            + " tunner = " + str(appareil[key].tunner) + "\n" + "\n"   
+                            + " device name = " + str(appareil[key].devicename) + "\n" + "\n") 
+    
+#                            + " |{keysybole}                   |")
+
+
+    
+
+    
+    
 
 
 
@@ -259,7 +279,9 @@ stop = Button(fenetreprincipale, text='stop', activebackground='red',
 command=lambda: stop_rtl_fm())
 stop.place(x=60, y=0)
 
-
+devices = Button(fenetreprincipale, text='devices', activebackground='red', 
+command=lambda: interrogeusb(key = 1))
+devices.place(x=00, y=115)
 
 
 ############
@@ -301,7 +323,6 @@ def stop_rtl_fm():
 
 def start_rtl_fm(demodulation0, frequence0, sample_rate0, ppm0): 
     stop_rtl_fm()
-    interrogeusb()
     startoutput = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -p "+ str(ppm0.get()) + " | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
     shell = True, text = True) 
     text0.delete("1.0","end")
@@ -341,3 +362,5 @@ ppm0.bind("<ButtonRelease-1>", restart)
 #################################
 
 fenetreprincipale.mainloop()
+
+
