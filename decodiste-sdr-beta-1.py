@@ -64,7 +64,7 @@ fenetreprincipale.iconphoto(False, icone)
 
 
 ############
-#  texte   #
+#  texte toto   #
 ############
 
 text0 = Text(fenetreprincipale, border=4)
