@@ -8,7 +8,8 @@ alt gr + 7 pour: ```
 discord
 discord```
 
-
+pip install pyrtlsdr
+pip install pyusb
 """
 
 #########################
@@ -17,21 +18,15 @@ discord```
 #  interface - sdr - 2  #
 #########################
 
-
+import subprocess
+from rtlsdr import *
 import threading
 import usb
 import time
-from os import pipe, wait
-import textwrap
-from textwrap import *
-import sys
-from sys import *
-import tkinter
 from tkinter import *
-import io
-from io import *
-import subprocess
 from subprocess import *
+from textwrap import *
+
 
 ######################
 # titre du programme #
@@ -67,11 +62,11 @@ fenetreprincipale.iconphoto(False, icone)
 #  texte   #
 ############
 
-text0 = Text(fenetreprincipale, border=4)
+text0 = Text(fenetreprincipale, border= 4 )
 text0.place(x=180, y=0, height=180, width=420)
-text1 = Text(fenetreprincipale, border=4)
-text1.place(x=0, y=180, height=200, width=600)
 
+text1 = Text(fenetreprincipale, border= 4)
+text1.place(x=0, y=180, height=200, width=600)
 
 ###########################################
 # class Appareilusb: le device est il present ? #
@@ -82,8 +77,7 @@ class AppareilUsb:
 #class des idvendeur et idproducteur
        
     def __init__(self, id_vendeur, id_producteur, _tunner, device_name, key_symbole, key_symbolefin):        
-        
-                
+
         self.idvendeur = id_vendeur
         self.idproducteur = id_producteur
         self.tunner =_tunner
@@ -113,91 +107,78 @@ idusb19 = AppareilUsb(0x0bda, 0x2838, "FC0012 ou E4000",   "Realtek Semiconducto
 idusb20 = AppareilUsb(0x0bda, 0x2838, "E4000 ou FC0012",   "ezcap USB 2.0 DVB-T/DAB/FM dongle" + "\n" "               ou Realtek Semiconductor Corp. RTL2838 DVB-T", "####################", "/") 
 idusb21 = AppareilUsb(0x0000, 0x0000, "introuvable",       "introuvable", "#####################", "") 
 
-appareil = {1: idusb01,   
-            2: idusb02, 
-            3: idusb03,
-            4: idusb04, 
-            5: idusb05,
-            6: idusb06, 
-            7: idusb07,
-            8: idusb08, 
-            9: idusb09,
-            10: idusb10, 
-            11: idusb11,   
-            12: idusb12, 
-            13: idusb13,
-            14: idusb14, 
-            15: idusb15,
-            16: idusb16, 
-            17: idusb17,
-            18: idusb18, 
-            19: idusb19,
-            20: idusb20,
-            21: idusb21,}
-
- 
+appareils = [
+    idusb01,
+    idusb02,
+    idusb03,
+    idusb04,
+    idusb05,
+    idusb06,
+    idusb07,
+    idusb08,
+    idusb09,
+    idusb10,
+    idusb11,
+    idusb12,
+    idusb13,
+    idusb14,
+    idusb15,
+    idusb16,
+    idusb17,
+    idusb18,
+    idusb19,
+    idusb20,
+    idusb21]
 
 
 def interrogeusb():
-     
-    for key in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]: 
-        interroge = usb.core.find(idVendor=appareil[key].idvendeur, idProduct=appareil[key].idproducteur)
-        interroge
+    for appareil in appareils: 
+        interroge = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
         if interroge is None:
-        
-            
             text1.delete("1.0","end")
-            text1.insert(INSERT, "Liste de Devices interogés ... " + " |" + str(appareil[key].keysymbole) + str(appareil[key].keysymbolefin) + "|"
+            text1.insert(INSERT, "Liste de Devices interogés ... " + " |" + str(appareil.keysymbole) + str(appareil.keysymbolefin) + "|"
             +  "\n" + "\n"
-            + " nombre de devices DVB-T interogé = " + str(key) + "\n" + "\n" )
+            + " nombre de devices DVB-T interogé = " + str(appareils.index(appareil)+1) + "\n" + "\n" )
             
-            text1.insert(INSERT,  " idvendeur = " + str(hex(appareil[key].idvendeur)) + "\n" 
-                            + " idproducteur = " + str(hex(appareil[key].idproducteur)) + "\n"    
-                            + " tunner = " + str(appareil[key].tunner) + "\n"  
-                            + " device name = " + str(appareil[key].devicename) + "\n" 
+            text1.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n" 
+                            + " idproducteur = " + str(hex(appareil.idproducteur)) + "\n"    
+                            + " tunner = " + str(appareil.tunner) + "\n"  
+                            + " device name = " + str(appareil.devicename) + "\n" 
                             + " Device DVB-T non trouvé ou incompatible" + "\n"  + "\n")
-                              
-        
-
             time.sleep(1)
-             
-            key = key + 1     
-
         else:
-            break
+            text1.delete("1.0","end")
+            text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")
+            text1.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
+                            + " idproducteur = " + str(hex(appareil.idproducteur))+ "\n"    
+                            + " tunner = " + str(appareil.tunner) + "\n" + "\n"   
+                            + " device name = " + str(appareil.devicename) + "\n" + "\n" )
 
-    if interroge is not None: 
-          
-        text1.delete("1.0","end")
-        text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")
-        text1.insert(INSERT,  " idvendeur = " + str(hex(appareil[key].idvendeur)) + "\n"   
-                            + " idproducteur = " + str(hex(appareil[key].idproducteur))+ "\n"    
-                            + " tunner = " + str(appareil[key].tunner) + "\n" + "\n"   
-                            + " device name = " + str(appareil[key].devicename) + "\n" + "\n" )
-                            
-        
-                
+
+            break
 
 thread1 = threading.Thread(target=interrogeusb)    
     
     
 def thread_start():
     thread1.start(),
-    
-
-
-
-
 
 #####################################################################
 #            class    parametres par default                        #
 #####################################################################
 
+
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
-freq = "94200000"
-sample_rate = "250000"
-ppm = "0"
- 
+freq = int(94.2e6)
+sample_rate = int(2.5e5)
+re_sample_rate = int(32e3)
+ppm = int(0)
+
+
+############
+# spectrum #
+############
+
 
 #############################################
 # bouton slider frequence, ppm, sample_rate #
@@ -206,22 +187,28 @@ ppm = "0"
 
 
 frequence0 = Scale(fenetreprincipale, label="frequence", 
-from_=88000000, to=108000000, resolution=1000, orient=HORIZONTAL, activebackground="yellow", 
+from_=88000000, to=900000000, resolution=1000, orient=HORIZONTAL, activebackground="yellow", 
 background="green")
 frequence0.set(freq)
 frequence0.place(x=600, y=0, width=500 , height=60)
 
 
 sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
-from_=0, to=2000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
+from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 sample_rate0.set(sample_rate)
 sample_rate0.place(x=600, y=60, width=500 , height=60)
 
 
+re_sample_rate0 = Scale(fenetreprincipale, label="re_sample_rate", 
+from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
+re_sample_rate0.set(re_sample_rate)
+re_sample_rate0.place(x=600, y=120, width=500 , height=60)
+
+
 ppm0 = Scale(fenetreprincipale, label="ppm", 
-from_=0, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
+from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
 ppm0.set(ppm)
-ppm0.place(x=600, y=120, width=500 , height=60)
+ppm0.place(x=600, y=180, width=500 , height=60)
 
 #######################################################################
 # bouton  demodulation0 = ["wbfm", "fm" , "am", "lsb", "usb", "raw" ] #
@@ -278,7 +265,7 @@ raw0.place(x=120, y=75, width=60, height=35)
 
 
 start = Button(fenetreprincipale, text='start', activebackground='blue', 
-command=lambda: start_rtl_fm(demodulation0[0], frequence0, sample_rate0, ppm0))
+command=lambda: start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0))
 start.place(x=0, y=0)
 
 stop = Button(fenetreprincipale, text='stop', activebackground='red', 
@@ -325,25 +312,27 @@ def stop_rtl_fm():
     
     
     
-    
 
-def start_rtl_fm(demodulation0, frequence0, sample_rate0, ppm0): 
+def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm0): 
     stop_rtl_fm()
-    startoutput = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -p "+ str(ppm0.get()) + " | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
+    
+    subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm0.get()) + " | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
     shell = True, text = True) 
     text0.delete("1.0","end")
     text0.insert(INSERT, "terminal:" "\n") 
     text0.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0)+"\n")
     text0.insert(INSERT,"parametres utiliser: frequences   "+ str(frequence0.get())+"\n")
-    text0.insert(INSERT,"parametres utiliser: samprate     "+ str(sample_rate0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: sample-rate     "+ str(sample_rate0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: re-sample-rate     "+ str(re_sample_rate0.get())+"\n")
     text0.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm0.get())+"\n")
 
 def restart(Event):
-    start_rtl_fm(demodulation0[0], frequence0, sample_rate0, ppm0)
+    start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0)
     time.sleep(1.5)
     
 frequence0.bind("<ButtonRelease-1>", restart)
 sample_rate0.bind("<ButtonRelease-1>", restart)
+re_sample_rate0.bind("<ButtonRelease-1>", restart)
 ppm0.bind("<ButtonRelease-1>", restart)
 
 
