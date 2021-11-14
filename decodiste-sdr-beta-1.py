@@ -17,16 +17,23 @@ pip install pyusb
 #########################
 #  interface - sdr - 2  #
 #########################
-
+from io import *
+from os import pipe, popen
 import subprocess
+from numpy.core.defchararray import decode, encode
+import rtlsdr
 from rtlsdr import *
 import threading
 import usb
+from usb import *
 import time
 from tkinter import *
 from subprocess import *
 from textwrap import *
-
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+from usb.legacy import USBError
 
 ######################
 # titre du programme #
@@ -67,6 +74,9 @@ text0.place(x=180, y=0, height=180, width=420)
 
 text1 = Text(fenetreprincipale, border= 4)
 text1.place(x=0, y=180, height=200, width=600)
+
+text2 = Text(fenetreprincipale, border= 4)
+text2.place(x=0, y=360, height=200, width=600)
 
 ###########################################
 # class Appareilusb: le device est il present ? #
@@ -147,22 +157,65 @@ def interrogeusb():
                             + " Device DVB-T non trouvé ou incompatible" + "\n"  + "\n")
             time.sleep(1)
         else:
+            #nommé une variable == a appareil trouvé
             text1.delete("1.0","end")
             text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")
             text1.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
                             + " idproducteur = " + str(hex(appareil.idproducteur))+ "\n"    
                             + " tunner = " + str(appareil.tunner) + "\n" + "\n"   
                             + " device name = " + str(appareil.devicename) + "\n" + "\n" )
-
+            
 
             break
 
-thread1 = threading.Thread(target=interrogeusb)    
-    
-    
-def thread_start():
-    thread1.start(),
 
+def lire_data():
+    
+    for appareil in appareils:   
+        devicenonnone = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
+        if devicenonnone is not None:
+            #text2.insert(INSERT,  " idvendeur = " + str(devicenonnone) + "\n")  
+         
+        
+       # use the first/default configuration
+        #if devicenonnone is not None:
+            text2.insert(INSERT,  " idvendeur = " + str(usb.control.set_configuration(devicenonnone,bConfigurationNumber=0)) + "\n") 
+
+            """
+            # first endpoint
+            endpoint = devicenonnone[0][(0,0)][0]
+            # read a data packet
+            data1 = None
+        while True:
+            try:
+                data1 = open(devicenonnone).read(endpoint.bEndpointAddress,
+                               endpoint.wMaxPacketSize)
+                print (data1)
+
+            except usb.core.USBError as e:
+                data1 = None
+                if e.args == ('Operation timed out',):
+
+                    continue
+
+    
+"""
+
+thread1 = threading.Thread(target=interrogeusb)    
+thread2 = threading.Thread(target=lire_data)    
+    
+def thread1_start():
+    thread1.start()
+
+def thread2_start():    
+    thread2.start()
+
+
+    
+    
+    
+
+    
 #####################################################################
 #            class    parametres par default                        #
 #####################################################################
@@ -170,14 +223,15 @@ def thread_start():
 
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
-sample_rate = int(2.5e5)
-re_sample_rate = int(32e3)
-ppm = int(0)
+sample_rate = int(2400e2)
+re_sample_rate = int(32000)
+ppm = int(60)
 
 
 ############
 # spectrum #
 ############
+
 
 
 #############################################
@@ -270,12 +324,15 @@ start.place(x=0, y=0)
 
 stop = Button(fenetreprincipale, text='stop', activebackground='red', 
 command=lambda: stop_rtl_fm())
-stop.place(x=60, y=0)
+stop.place(x=80, y=0)
 
-devices = Button(fenetreprincipale, text='devices', activebackground='red', 
-command=lambda:  thread_start())
-devices.place(x=00, y=115)
+device = Button(fenetreprincipale, text='device', activebackground='red', 
+command=lambda:  thread1_start())
+device.place(x=80, y=115)
 
+data = Button(fenetreprincipale, text='data', activebackground='red', 
+command=lambda:  thread2_start())
+data.place(x=0, y=115)
 
 ############
 # fonction #
@@ -310,14 +367,14 @@ def stop_rtl_fm():
     capture_output=True, shell = True, text = True)
     time.sleep(1.5)
     
-    
-    
 
+    
 def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm0): 
     stop_rtl_fm()
     
-    subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm0.get()) + " | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
-    shell = True, text = True) 
+    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm0.get()) +" | play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
+    , shell = True, stdout=subprocess.PIPE, universal_newlines=True)
+   
     text0.delete("1.0","end")
     text0.insert(INSERT, "terminal:" "\n") 
     text0.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0)+"\n")
@@ -325,7 +382,12 @@ def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm0)
     text0.insert(INSERT,"parametres utiliser: sample-rate     "+ str(sample_rate0.get())+"\n")
     text0.insert(INSERT,"parametres utiliser: re-sample-rate     "+ str(re_sample_rate0.get())+"\n")
     text0.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm0.get())+"\n")
+    
 
+    
+    
+    
+     
 def restart(Event):
     start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0)
     time.sleep(1.5)
