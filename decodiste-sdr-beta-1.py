@@ -17,30 +17,29 @@ pip install pyusb
 #########################
 #  interface - sdr - 2  #
 #########################
-from io import *
-from os import pipe, popen
-import subprocess
-from numpy.core.defchararray import decode, encode
-import rtlsdr
-from rtlsdr import *
-import threading
-import usb
-from usb import *
-import time
+
 from tkinter import *
 from subprocess import *
-from textwrap import *
+import time
+import threading
+
+import usb.core
+import usb.util
+import usb.control
+from usb.legacy import Device, DeviceHandle
+from usb.backend.libusb1 import _Device
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-from usb.legacy import USBError
+
 
 ######################
 # titre du programme #
 ######################
 
 fenetreprincipale = Tk()
-fenetreprincipale.title('decodiste-sdr-beta-1.75-2021')
+fenetreprincipale.title('decodiste-sdr-beta-NOV-2021')
 
 
 ####################################
@@ -140,7 +139,6 @@ appareils = [
     idusb20,
     idusb21]
 
-
 def interrogeusb():
     for appareil in appareils: 
         interroge = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
@@ -169,38 +167,113 @@ def interrogeusb():
             break
 
 
+
 def lire_data():
     
     for appareil in appareils:   
-        devicenonnone = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
-        if devicenonnone is not None:
-            #text2.insert(INSERT,  " idvendeur = " + str(devicenonnone) + "\n")  
-         
+        dev = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
         
-       # use the first/default configuration
-        #if devicenonnone is not None:
-            text2.insert(INSERT,  " idvendeur = " + str(usb.control.set_configuration(devicenonnone,bConfigurationNumber=0)) + "\n") 
+        if dev is None:
+            text1.delete("1.0","end")
+            text1.insert(INSERT, "device non trouvé ...")    
+        if dev is not None:
+            text1.delete("1.0","end")
+            text1.insert(INSERT, dev)
+            if usb.core.Device.is_kernel_driver_active:
+                usb.core.Device.detach_kernel_driver
+            
 
-            """
-            # first endpoint
-            endpoint = devicenonnone[0][(0,0)][0]
-            # read a data packet
-            data1 = None
-        while True:
-            try:
-                data1 = open(devicenonnone).read(endpoint.bEndpointAddress,
-                               endpoint.wMaxPacketSize)
-                print (data1)
+            # get an endpoint instance
+            cfg = usb.core.Device.get_active_configuration(dev)
+            
+            interface_number = cfg[(1,0)].bInterfaceNumber
+            alternate_settting = usb.control.get_interface(dev,interface_number)
+            intf = usb.util.find_descriptor(
+            cfg, bInterfaceNumber = interface_number,
+            bAlternateSetting = 0)
+            
+            #usb.core.Device.set_configuration(dev)
+            endpoint = dev[0][(0,0)][0]
+            if usb.core.Device.is_kernel_driver_active:
+                usb.core.Device.detach_kernel_driver
+            #assert ep is not None 
+            test = usb.core.Device.read(dev, endpoint=0x81, size_or_buffer=100)
+            print(test)
+"""            
+            #print(dev.bNumConfigurations)
+            #print(dev.bDeviceClass)
+            #print(dev.bDeviceSubClass)
+            print(dev.bDeviceProtocol )
+            #assert dev.ctrl_transfer(0x81, CTRL_LOOPBACK_WRITE, 0, 0, msg) == len(msg)
+            #assert dev.ctrl_transfer(dev, 0x81, USB_EPA_FIFO_CFG, )    
+            #dev.set_configuration()
+            
+            for cfg in dev:
+                sys.stdout.write(str(cfg.bConfigurationValue) + '\n')
+                for intf in cfg:
+                    sys.stdout.write('\t' + \
+                    str(intf.bInterfaceNumber) + \
+                    ',' + \
+                    str(intf.bAlternateSetting) + \
+                    '\n')
+                    for ep in intf:
+                        sys.stdout.write('\t\t' + \
+                        str(ep.bEndpointAddress) + \
+                        '\n')
+                usb.core.Device.set_configuration(dev)
+                usb.core.Device.get_active_configuration()
+          
+                #dev.get_active_configuration()
+                print("BEFORE")
+                print(cfg.bNumInterfaces)
+                print(str(cfg))
+                print("AFTER")
+                
+                #intf = cfg[(0,0)]
 
-            except usb.core.USBError as e:
-                data1 = None
-                if e.args == ('Operation timed out',):
-
-                    continue
-
+            
     
-"""
+#cfg = usb.util.find_descriptor(dev, bConfigurationValue=1)
+            #usb.core.Device.detach_kernel_driver(dev, interface=1)
 
+            # get an endpoint instance
+DeviceHandle.bulkRead(dev, endpoint=1, size=512, timeout=100)
+
+        reattach = False
+            if usb.core.Device.is_kernel_driver_active(0):
+                    reattach = True
+                    
+            for cfg in Device:
+                for i in cfg:
+                    for e in i:
+                        
+
+            Device.open
+            DeviceHandle.bulkRead(DeviceHandle, usb.core.Endpoint, size=8, timeout=100)
+            
+        
+            usb.core.Device.is_kernel_driver_active(dev, 1)
+            
+            usb.core.Device.detach_kernel_driver(0)
+            print ("kernel driver detached") 
+               
+        print( usb.core.Device.get_active_configuration(dev))
+        intf = cfg[(0,0)]
+            
+    
+        ep = usb.util.find_descriptor(
+        intf,
+            # match the first OUT endpoint
+        custom_match = \
+        lambda e: \
+        usb.util.endpoint_direction(e.bEndpointAddress) == \
+        usb.util.ENDPOINT_OUT)
+ 
+"""    
+
+##################
+#  threading     #
+##################
 thread1 = threading.Thread(target=interrogeusb)    
 thread2 = threading.Thread(target=lire_data)    
     
@@ -372,7 +445,7 @@ def stop_rtl_fm():
 def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm0): 
     stop_rtl_fm()
     
-    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm0.get()) +" | play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
+    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm0.get()) + "| play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
     , shell = True, stdout=subprocess.PIPE, universal_newlines=True)
    
     text0.delete("1.0","end")
