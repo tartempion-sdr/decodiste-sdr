@@ -18,17 +18,19 @@ pip install pyusb
 #  interface - sdr - 2  #
 #########################
 
+from array import array
 from tkinter import *
-from subprocess import *
+import subprocess
 import time
 import threading
+import rtlsdr
+from usb.backend.libusb1 import _DeviceHandle
 
 import usb.core
 import usb.util
 import usb.control
-from usb.legacy import Device, DeviceHandle
-from usb.backend.libusb1 import _Device
 
+from rtlsdr import RtlSdr
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -152,136 +154,80 @@ def interrogeusb():
                             + " idproducteur = " + str(hex(appareil.idproducteur)) + "\n"    
                             + " tunner = " + str(appareil.tunner) + "\n"  
                             + " device name = " + str(appareil.devicename) + "\n" 
-                            + " Device DVB-T non trouvé ou incompatible" + "\n"  + "\n")
-            time.sleep(1)
+                            + " Device DVB-T non trouvé ou incompatible" + "\n"  + "\n")           
+            time.sleep(0.2)
+
         else:
             #nommé une variable == a appareil trouvé
             text1.delete("1.0","end")
-            text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")
+            text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")            
             text1.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
                             + " idproducteur = " + str(hex(appareil.idproducteur))+ "\n"    
                             + " tunner = " + str(appareil.tunner) + "\n" + "\n"   
                             + " device name = " + str(appareil.devicename) + "\n" + "\n" )
+                            
             
-
             break
 
 
 
-def lire_data():
+def spectrum():
     
-    for appareil in appareils:   
-        dev = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
+        kernel_re()
+        sdr = RtlSdr()
+    
+        # configure device
+        sdr.sample_rate = sample_rate0.get()  # Hz
+        sdr.center_freq = frequence0.get()  # Hz
+        sdr.freq_correction = ppm   # PPM
+        sdr.gain = 'auto'
+
+        fig = plt.figure()
+    
+        graph_out = fig.add_subplot(1, 1, 1)
+
+        def animate(i):
+            graph_out.clear()
+            #samples = sdr.read_samples(256*1024)
+            samples = sdr.read_samples(128*1024)
+            # use matplotlib to estimate and plot the PSD
+            graph_out.psd(samples, NFFT=1024, Fs=sdr.sample_rate /
+            1e6, Fc=sdr.center_freq/1e6)
+            #graph_out.xlabel('Frequency (MHz)')
+            #graph_out.ylabel('Relative power (dB)')
+
+
+        try:
+            ani = animation.FuncAnimation(fig, animate, interval=2)
+            plt.show()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            sdr.close() 
+
+
+
+
+def kernel_re():
+    dev1 = usb.core.find(idVendor=0x0bda, idProduct=0x2838)
+    if dev1.is_kernel_driver_active(0) is not None:
+        print ("dev 1 is not none")
+        dev1.reset()
+        dev1.detach_kernel_driver(interface=0) 
+        print("detache usb")
         
-        if dev is None:
-            text1.delete("1.0","end")
-            text1.insert(INSERT, "device non trouvé ...")    
-        if dev is not None:
-            text1.delete("1.0","end")
-            text1.insert(INSERT, dev)
-            if usb.core.Device.is_kernel_driver_active:
-                usb.core.Device.detach_kernel_driver
-            
 
-            # get an endpoint instance
-            cfg = usb.core.Device.get_active_configuration(dev)
-            
-            interface_number = cfg[(1,0)].bInterfaceNumber
-            alternate_settting = usb.control.get_interface(dev,interface_number)
-            intf = usb.util.find_descriptor(
-            cfg, bInterfaceNumber = interface_number,
-            bAlternateSetting = 0)
-            
-            #usb.core.Device.set_configuration(dev)
-            endpoint = dev[0][(0,0)][0]
-            if usb.core.Device.is_kernel_driver_active:
-                usb.core.Device.detach_kernel_driver
-            #assert ep is not None 
-            test = usb.core.Device.read(dev, endpoint=0x81, size_or_buffer=100)
-            print(test)
-"""            
-            #print(dev.bNumConfigurations)
-            #print(dev.bDeviceClass)
-            #print(dev.bDeviceSubClass)
-            print(dev.bDeviceProtocol )
-            #assert dev.ctrl_transfer(0x81, CTRL_LOOPBACK_WRITE, 0, 0, msg) == len(msg)
-            #assert dev.ctrl_transfer(dev, 0x81, USB_EPA_FIFO_CFG, )    
-            #dev.set_configuration()
-            
-            for cfg in dev:
-                sys.stdout.write(str(cfg.bConfigurationValue) + '\n')
-                for intf in cfg:
-                    sys.stdout.write('\t' + \
-                    str(intf.bInterfaceNumber) + \
-                    ',' + \
-                    str(intf.bAlternateSetting) + \
-                    '\n')
-                    for ep in intf:
-                        sys.stdout.write('\t\t' + \
-                        str(ep.bEndpointAddress) + \
-                        '\n')
-                usb.core.Device.set_configuration(dev)
-                usb.core.Device.get_active_configuration()
-          
-                #dev.get_active_configuration()
-                print("BEFORE")
-                print(cfg.bNumInterfaces)
-                print(str(cfg))
-                print("AFTER")
-                
-                #intf = cfg[(0,0)]
-
-            
-    
-#cfg = usb.util.find_descriptor(dev, bConfigurationValue=1)
-            #usb.core.Device.detach_kernel_driver(dev, interface=1)
-
-            # get an endpoint instance
-DeviceHandle.bulkRead(dev, endpoint=1, size=512, timeout=100)
-
-        reattach = False
-            if usb.core.Device.is_kernel_driver_active(0):
-                    reattach = True
-                    
-            for cfg in Device:
-                for i in cfg:
-                    for e in i:
-                        
-
-            Device.open
-            DeviceHandle.bulkRead(DeviceHandle, usb.core.Endpoint, size=8, timeout=100)
-            
-        
-            usb.core.Device.is_kernel_driver_active(dev, 1)
-            
-            usb.core.Device.detach_kernel_driver(0)
-            print ("kernel driver detached") 
-               
-        print( usb.core.Device.get_active_configuration(dev))
-        intf = cfg[(0,0)]
-            
-    
-        ep = usb.util.find_descriptor(
-        intf,
-            # match the first OUT endpoint
-        custom_match = \
-        lambda e: \
-        usb.util.endpoint_direction(e.bEndpointAddress) == \
-        usb.util.ENDPOINT_OUT)
- 
-"""    
 
 ##################
 #  threading     #
 ##################
 thread1 = threading.Thread(target=interrogeusb)    
-thread2 = threading.Thread(target=lire_data)    
+
     
 def thread1_start():
     thread1.start()
 
-def thread2_start():    
-    thread2.start()
+
 
 
     
@@ -392,26 +338,33 @@ raw0.place(x=120, y=75, width=60, height=35)
 
 
 start = Button(fenetreprincipale, text='start', activebackground='blue', 
-command=lambda: start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0))
+command=lambda: 
+start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0))
 start.place(x=0, y=0)
 
 stop = Button(fenetreprincipale, text='stop', activebackground='red', 
 command=lambda: stop_rtl_fm())
 stop.place(x=80, y=0)
 
-device = Button(fenetreprincipale, text='device', activebackground='red', 
+devices = Button(fenetreprincipale, text='devices', activebackground='red', 
 command=lambda:  thread1_start())
-device.place(x=80, y=115)
+devices.place(x=80, y=115)
 
-data = Button(fenetreprincipale, text='data', activebackground='red', 
-command=lambda:  thread2_start())
-data.place(x=0, y=115)
+spectre = Button(fenetreprincipale, text='spectre', activebackground='red', 
+command=lambda:  spectrum(), )
+spectre.place(x=0, y=115)
+
+
+kernel = Button(fenetreprincipale, text='kernel', activebackground='red', 
+command=lambda:  kernel_re())
+kernel.place(x=0, y=145)
 
 ############
 # fonction #
 ############
 
 
+               
 
 def change0demodulationwbfm():
     demodulation0[0] = "wbfm"
@@ -462,6 +415,7 @@ def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm0)
     
      
 def restart(Event):
+    kernel_re()
     start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0)
     time.sleep(1.5)
     
@@ -469,6 +423,8 @@ frequence0.bind("<ButtonRelease-1>", restart)
 sample_rate0.bind("<ButtonRelease-1>", restart)
 re_sample_rate0.bind("<ButtonRelease-1>", restart)
 ppm0.bind("<ButtonRelease-1>", restart)
+
+#kernel
 
 
 
