@@ -194,7 +194,7 @@ def interrogeusb():
 
 def spectrum():
     
-        kernel_re()
+        
         sdr = RtlSdr()
     
         # configure device
@@ -314,7 +314,7 @@ frequence0.place(x=0, y=195, width=500 , height=60)
 
 
 freqplus1 =  Button(fenetreprincipale, text="freq +1", activebackground='green', background='red', 
-command=lambda: freqplusvar1())
+command=lambda: [freqplusvar1(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus1.place(x=0, y=135, width=60, height=30  )
 
 def freqplusvar1():
@@ -324,7 +324,7 @@ def freqplusvar1():
     
 
 freqplus2 =  Button(fenetreprincipale, text="+10", activebackground='green', background='red',
-command=lambda: freqplusvar2())
+command=lambda: [freqplusvar2(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus2.place(x=60, y=135, width=30, height=30)
 
 def freqplusvar2():
@@ -334,7 +334,7 @@ def freqplusvar2():
     
 
 freqplus3 =  Button(fenetreprincipale, text="+100", activebackground='green', background='red',
-command=lambda: freqplusvar3())
+command=lambda: [freqplusvar3(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus3.place(x=90, y=135, width=40, height=30)
 
 def freqplusvar3():
@@ -344,7 +344,7 @@ def freqplusvar3():
     
 
 freqplus4 =  Button(fenetreprincipale, text="+1 000", activebackground='green', background='red',
-command=lambda: freqplusvar4())
+command=lambda: [freqplusvar4(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus4.place(x=130, y=135, width=55, height=30)
 
 def freqplusvar4():
@@ -353,7 +353,7 @@ def freqplusvar4():
     frequence0.set(freq)
     
 freqplus5 =  Button(fenetreprincipale, text="+10 000", activebackground='green', background='red',
-command=lambda: freqplusvar5())
+command=lambda: [freqplusvar5(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus5.place(x=185, y=135, width=65, height=30)
 
 def freqplusvar5():
@@ -363,7 +363,7 @@ def freqplusvar5():
     
 
 freqplus6 =  Button(fenetreprincipale, text="+100 000", activebackground='green', background='red',
-command=lambda: freqplusvar6())
+command=lambda: [freqplusvar6(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus6.place(x=250, y=135, width=70, height=30)
 
 def freqplusvar6():
@@ -373,19 +373,19 @@ def freqplusvar6():
 
 
 freqplus7 =  Button(fenetreprincipale, text="+1 000 000", activebackground='green', background='red',
-command=lambda: freqplusvar7())
+command=lambda: [freqplusvar7(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqplus7.place(x=320, y=135, width=80, height=30)
 
 def freqplusvar7():
     global freq
     freq += 1000000
     frequence0.set(freq)
-
+    
 
 
 
 freqmoins1 =  Button(fenetreprincipale, text="freq -1", activebackground='green', background='blue',
-command=lambda: freqmoinsvar1())
+command=lambda: [freqmoinsvar1(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins1.place(x=0, y=165, width=60, height=30)
 
 def freqmoinsvar1():
@@ -395,7 +395,7 @@ def freqmoinsvar1():
 
 
 freqmoins2 =  Button(fenetreprincipale, text="-10", activebackground='green', background='blue',
-command=lambda: freqmoinsvar2())
+command=lambda: [freqmoinsvar2(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins2.place(x=60, y=165, width=30, height=30)
 
 def freqmoinsvar2():
@@ -405,7 +405,7 @@ def freqmoinsvar2():
 
 
 freqmoins3 =  Button(fenetreprincipale, text="-100", activebackground='green', background='blue',
-command=lambda: freqmoinsvar3())
+command=lambda: [freqmoinsvar3(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins3.place(x=90, y=165, width=40, height=30)
 
 def freqmoinsvar3():
@@ -415,7 +415,7 @@ def freqmoinsvar3():
 
 
 freqmoins4 =  Button(fenetreprincipale, text="-1 000", activebackground='green', background='blue',
-command=lambda: freqmoinsvar4())
+command=lambda: [freqmoinsvar4(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins4.place(x=130, y=165, width=55, height=30)
 
 def freqmoinsvar4():
@@ -425,7 +425,7 @@ def freqmoinsvar4():
 
 
 freqmoins5 =  Button(fenetreprincipale, text="-10 000", activebackground='green', background='blue',
-command=lambda: freqmoinsvar5())
+command=lambda: [freqmoinsvar5(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins5.place(x=185, y=165, width=65, height=30)
 
 def freqmoinsvar5():
@@ -434,7 +434,7 @@ def freqmoinsvar5():
     frequence0.set(freq)
 
 freqmoins6 =  Button(fenetreprincipale, text="-100 000", activebackground='green', background='blue',
-command=lambda: freqmoinsvar6())
+command=lambda: [freqmoinsvar6(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins6.place(x=250, y=165, width=70, height=30)
 
 def freqmoinsvar6():
@@ -444,13 +444,14 @@ def freqmoinsvar6():
 
 
 freqmoins7 =  Button(fenetreprincipale, text="-1 000 000", activebackground='green', background='blue',
-command=lambda: freqmoinsvar7())
+command=lambda: [freqmoinsvar7(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 freqmoins7.place(x=320, y=165, width=80, height=30)
 
 def freqmoinsvar7():
     global freq
     freq -= 1000000
     frequence0.set(freq)
+    
 
 #samplerate
 
