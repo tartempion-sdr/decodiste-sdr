@@ -310,7 +310,7 @@ frequence0 = Scale(fenetreprincipale, label="frequence",
 from_=22000000, to=900000000, resolution=1, orient=HORIZONTAL, activebackground="yellow", 
 background="green")
 frequence0.set(freq)
-frequence0.place(x=180, y=135, width=500 , height=60)
+frequence0.place(x=0, y=195, width=500 , height=60)
 
 
 freqplus1 =  Button(fenetreprincipale, text="freq +1", activebackground='green', background='red', 
@@ -343,15 +343,45 @@ def freqplusvar3():
     frequence0.set(freq)
     
 
-freqplus4 =  Button(fenetreprincipale, text="+1000", activebackground='green', background='red',
+freqplus4 =  Button(fenetreprincipale, text="+1 000", activebackground='green', background='red',
 command=lambda: freqplusvar4())
-freqplus4.place(x=130, y=135, width=45, height=30)
+freqplus4.place(x=130, y=135, width=55, height=30)
 
 def freqplusvar4():
     global freq
     freq += 1000
     frequence0.set(freq)
     
+freqplus5 =  Button(fenetreprincipale, text="+10 000", activebackground='green', background='red',
+command=lambda: freqplusvar5())
+freqplus5.place(x=185, y=135, width=65, height=30)
+
+def freqplusvar5():
+    global freq
+    freq += 10000
+    frequence0.set(freq)
+    
+
+freqplus6 =  Button(fenetreprincipale, text="+100 000", activebackground='green', background='red',
+command=lambda: freqplusvar6())
+freqplus6.place(x=250, y=135, width=70, height=30)
+
+def freqplusvar6():
+    global freq
+    freq += 100000
+    frequence0.set(freq)
+
+
+freqplus7 =  Button(fenetreprincipale, text="+1 000 000", activebackground='green', background='red',
+command=lambda: freqplusvar7())
+freqplus7.place(x=320, y=135, width=80, height=30)
+
+def freqplusvar7():
+    global freq
+    freq += 1000000
+    frequence0.set(freq)
+
+
 
 
 freqmoins1 =  Button(fenetreprincipale, text="freq -1", activebackground='green', background='blue',
@@ -384,9 +414,9 @@ def freqmoinsvar3():
     frequence0.set(freq)
 
 
-freqmoins4 =  Button(fenetreprincipale, text="-1000", activebackground='green', background='blue',
+freqmoins4 =  Button(fenetreprincipale, text="-1 000", activebackground='green', background='blue',
 command=lambda: freqmoinsvar4())
-freqmoins4.place(x=130, y=165, width=45, height=30)
+freqmoins4.place(x=130, y=165, width=55, height=30)
 
 def freqmoinsvar4():
     global freq
@@ -394,24 +424,52 @@ def freqmoinsvar4():
     frequence0.set(freq)
 
 
+freqmoins5 =  Button(fenetreprincipale, text="-10 000", activebackground='green', background='blue',
+command=lambda: freqmoinsvar5())
+freqmoins5.place(x=185, y=165, width=65, height=30)
+
+def freqmoinsvar5():
+    global freq
+    freq -= 10000
+    frequence0.set(freq)
+
+freqmoins6 =  Button(fenetreprincipale, text="-100 000", activebackground='green', background='blue',
+command=lambda: freqmoinsvar6())
+freqmoins6.place(x=250, y=165, width=70, height=30)
+
+def freqmoinsvar6():
+    global freq
+    freq -= 100000
+    frequence0.set(freq)
+
+
+freqmoins7 =  Button(fenetreprincipale, text="-1 000 000", activebackground='green', background='blue',
+command=lambda: freqmoinsvar7())
+freqmoins7.place(x=320, y=165, width=80, height=30)
+
+def freqmoinsvar7():
+    global freq
+    freq -= 1000000
+    frequence0.set(freq)
+
 #samplerate
 
 sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
 from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 sample_rate0.set(sample_rate)
-sample_rate0.place(x=180, y=195, width=500 , height=60)
+sample_rate0.place(x=0, y=255, width=500 , height=60)
 
 
 re_sample_rate0 = Scale(fenetreprincipale, label="re_sample_rate", 
-from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
+from_=0, to=44100, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 re_sample_rate0.set(re_sample_rate)
-re_sample_rate0.place(x=180, y=255, width=500 , height=60)
+re_sample_rate0.place(x=0, y=315, width=500 , height=60)
 
 
 ppm1 = Scale(fenetreprincipale, label="ppm",  
 from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
 ppm1.set(ppm0)
-ppm1.place(x=180, y=315, width=500 , height=60)
+ppm1.place(x=0, y=375, width=500 , height=60)
 
 
 
