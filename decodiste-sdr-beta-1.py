@@ -92,9 +92,9 @@ re_sample_rate = int(32000)
 ppm0 = int(1)  #not 0 for spectrum
 
 
-###########################################
+#################################################
 # class Appareilusb: le device est il present ? #
-########################################### 
+################################################# 
 
 class AppareilUsb:
    
@@ -242,7 +242,7 @@ def kernel_re():
 
 
 ##################
-#  threading     #
+#  threading  1   #
 ##################
 thread1 = threading.Thread(target=interrogeusb)    
 
