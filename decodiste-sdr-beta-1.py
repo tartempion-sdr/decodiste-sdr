@@ -3,45 +3,51 @@
 #   <- python 3.8.1 ->  #    
 
 """ long commentaire
+
 alt gr + 7 pour: ```
+
 ```python
 discord
 discord```
+
+help(pyaudio)
 
 pip install pyrtlsdr
 pip install pyusb
 """
 
 #########################
-#< ! DOCTYPE python>
+#< ! DOCTYPE python>    #
 #########################
 #  interface - sdr - 2  #
 #########################
 
-from array import array
 from tkinter import *
+import tkinter 
 import subprocess
 import time
 import threading
 import rtlsdr
-from usb.backend.libusb1 import _DeviceHandle
+
 
 import usb.core
 import usb.util
 import usb.control
 
-from rtlsdr import RtlSdr
+from rtlsdr import *
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-
+import pyaudio
 
 ######################
 # titre du programme #
 ######################
 
-fenetreprincipale = Tk()
+fenetreprincipale = tkinter.Tk()
 fenetreprincipale.title('decodiste-sdr-beta-NOV-2021')
+
+
 
 
 ####################################
@@ -71,13 +77,20 @@ fenetreprincipale.iconphoto(False, icone)
 ############
 
 text0 = Text(fenetreprincipale, border= 4 )
-text0.place(x=180, y=0, height=180, width=420)
+text0.place(x=180, y=0, height=125, width=500)
 
-text1 = Text(fenetreprincipale, border= 4)
-text1.place(x=0, y=180, height=200, width=600)
 
-text2 = Text(fenetreprincipale, border= 4)
-text2.place(x=0, y=360, height=200, width=600)
+#####################################################################
+#            class    parametres par default                        #
+#####################################################################
+
+
+demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
+freq = int(94.2e6)
+sample_rate = int(2400e2)
+re_sample_rate = int(32000)
+ppm0 = int(1)
+
 
 ###########################################
 # class Appareilusb: le device est il present ? #
@@ -141,34 +154,42 @@ appareils = [
     idusb20,
     idusb21]
 
+
+
+
 def interrogeusb():
     for appareil in appareils: 
         interroge = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
         if interroge is None:
-            text1.delete("1.0","end")
-            text1.insert(INSERT, "Liste de Devices interogés ... " + " |" + str(appareil.keysymbole) + str(appareil.keysymbolefin) + "|"
-            +  "\n" + "\n"
-            + " nombre de devices DVB-T interogé = " + str(appareils.index(appareil)+1) + "\n" + "\n" )
+            text0.delete("1.0","end")
+            text0.insert(INSERT, "Liste de Devices interogés ... " + " |" + str(appareil.keysymbole) + str(appareil.keysymbolefin) + "|"
+            +  "\n" 
+            + " nombre de devices DVB-T interogé = " + str(appareils.index(appareil)+1) + "\n"  )
             
-            text1.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n" 
+            text0.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n" 
                             + " idproducteur = " + str(hex(appareil.idproducteur)) + "\n"    
                             + " tunner = " + str(appareil.tunner) + "\n"  
                             + " device name = " + str(appareil.devicename) + "\n" 
-                            + " Device DVB-T non trouvé ou incompatible" + "\n"  + "\n")           
+                            + " Device DVB-T non trouvé ou incompatible" + "\n"  )           
             time.sleep(0.2)
 
         else:
             #nommé une variable == a appareil trouvé
-            text1.delete("1.0","end")
-            text1.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" + "\n")            
-            text1.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
+            text0.delete("1.0","end")
+            text0.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" )            
+            text0.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
                             + " idproducteur = " + str(hex(appareil.idproducteur))+ "\n"    
-                            + " tunner = " + str(appareil.tunner) + "\n" + "\n"   
+                            + " tunner = " + str(appareil.tunner) + "\n"    
                             + " device name = " + str(appareil.devicename) + "\n" + "\n" )
                             
             
             break
-
+############
+# spectrum #
+############
+#################################
+###      -  waterfall  -      ###
+#################################
 
 
 def spectrum():
@@ -179,7 +200,7 @@ def spectrum():
         # configure device
         sdr.sample_rate = sample_rate0.get()  # Hz
         sdr.center_freq = frequence0.get()  # Hz
-        sdr.freq_correction = ppm   # PPM
+        sdr.freq_correction = ppm0  # PPM
         sdr.gain = 'auto'
 
         fig = plt.figure()
@@ -198,7 +219,7 @@ def spectrum():
 
 
         try:
-            ani = animation.FuncAnimation(fig, animate, interval=2)
+            ani = animation.FuncAnimation(fig, animate, interval=10)
             plt.show()
         except KeyboardInterrupt:
             pass
@@ -206,7 +227,9 @@ def spectrum():
             sdr.close() 
 
 
-
+###################
+#  kernel detach  #
+###################
 
 def kernel_re():
     dev1 = usb.core.find(idVendor=0x0bda, idProduct=0x2838)
@@ -230,59 +253,6 @@ def thread1_start():
 
 
 
-    
-    
-    
-
-    
-#####################################################################
-#            class    parametres par default                        #
-#####################################################################
-
-
-demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
-freq = int(94.2e6)
-sample_rate = int(2400e2)
-re_sample_rate = int(32000)
-ppm = int(60)
-
-
-############
-# spectrum #
-############
-
-
-
-#############################################
-# bouton slider frequence, ppm, sample_rate #
-#############################################
-
-
-
-frequence0 = Scale(fenetreprincipale, label="frequence", 
-from_=88000000, to=900000000, resolution=1000, orient=HORIZONTAL, activebackground="yellow", 
-background="green")
-frequence0.set(freq)
-frequence0.place(x=600, y=0, width=500 , height=60)
-
-
-sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
-from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
-sample_rate0.set(sample_rate)
-sample_rate0.place(x=600, y=60, width=500 , height=60)
-
-
-re_sample_rate0 = Scale(fenetreprincipale, label="re_sample_rate", 
-from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
-re_sample_rate0.set(re_sample_rate)
-re_sample_rate0.place(x=600, y=120, width=500 , height=60)
-
-
-ppm0 = Scale(fenetreprincipale, label="ppm", 
-from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
-ppm0.set(ppm)
-ppm0.place(x=600, y=180, width=500 , height=60)
-
 #######################################################################
 # bouton  demodulation0 = ["wbfm", "fm" , "am", "lsb", "usb", "raw" ] #
 #######################################################################
@@ -291,43 +261,124 @@ ppm0.place(x=600, y=180, width=500 , height=60)
 wbfm0 =  Radiobutton(fenetreprincipale, indicatoron=False, value=0, variable=0, command=lambda: 
 [change0demodulationwbfm(),
 stop_rtl_fm(),
-start_rtl_fm(demodulation0[1], frequence0, sample_rate0, ppm0)], text="wbfm", activebackground='green', background='purple')
-wbfm0.place(x=0, y=40, width=60, height=35)
+start_rtl_fm(demodulation0[1], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="wbfm", activebackground='green', background='purple')
+wbfm0.place(x=0, y=30, width=60, height=35)
 
 
 fm0 = Radiobutton(fenetreprincipale, indicatoron=False, value=1, variable=0, command=lambda: 
 [change0demodulationfm(),
 stop_rtl_fm(),
-start_rtl_fm(demodulation0[2], frequence0, sample_rate0, ppm0)], text="fm", activebackground='green', background='purple')
-fm0.place(x=60, y=40, width=60, height=35)
+start_rtl_fm(demodulation0[2], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="fm", activebackground='green', background='purple')
+fm0.place(x=60, y=30, width=60, height=35)
 
 
 am0 = Radiobutton(fenetreprincipale, indicatoron=False, value=2, variable=0, command=lambda: 
 [change0demodulationam(),
 stop_rtl_fm(), 
-start_rtl_fm(demodulation0[3], frequence0, sample_rate0, ppm0)], text="am  ", activebackground='green', background='purple')
-am0.place(x=120, y=40, width=60, height=35)
+start_rtl_fm(demodulation0[3], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="am  ", activebackground='green', background='purple')
+am0.place(x=120, y=30, width=60, height=35)
 
 
 lsb0 = Radiobutton(fenetreprincipale, indicatoron=False, value=3, variable=0, command=lambda:  
 [change0demodulationlsb(),
 stop_rtl_fm(), 
-start_rtl_fm(demodulation0[4], frequence0, sample_rate0, ppm0)], text="lsb ", activebackground='green', background='purple')
-lsb0.place(x=0, y=75, width=60, height=35)
+start_rtl_fm(demodulation0[4], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="lsb ", activebackground='green', background='purple')
+lsb0.place(x=0, y=60, width=60, height=35)
 
 usb0 = Radiobutton(fenetreprincipale, indicatoron=False, value=4, variable=0, command=lambda: 
 [change0demodulationusb(),
 stop_rtl_fm(), 
-start_rtl_fm(demodulation0[5], frequence0, sample_rate0, ppm0)], text="usb ", activebackground='green', background='purple')
-usb0.place(x=60, y=75, width=60, height=35)
+start_rtl_fm(demodulation0[5], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="usb ", activebackground='green', background='purple')
+usb0.place(x=60, y=60, width=60, height=35)
 
 raw0 = Radiobutton(fenetreprincipale, indicatoron=False, value=5, variable=0, command=lambda:  
 [change0demodulationraw(),
 stop_rtl_fm(),
-start_rtl_fm(demodulation0[6], frequence0, sample_rate0, ppm0)], text="raw ", activebackground='green', background='purple')
-raw0.place(x=120, y=75, width=60, height=35)
+start_rtl_fm(demodulation0[6], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="raw ", activebackground='green', background='purple')
+raw0.place(x=120, y=60, width=60, height=35)
 
 
+
+
+###################################################
+# bouton scale + plus frequence, ppm, sample_rate #
+###################################################
+
+#freq
+
+frequence0 = Scale(fenetreprincipale, label="frequence", 
+from_=22000000, to=900000000, resolution=1, orient=HORIZONTAL, activebackground="yellow", 
+background="green")
+frequence0.set(freq)
+frequence0.place(x=180, y=125, width=500 , height=60)
+
+freqplus1 =  Button(fenetreprincipale, text="freq +1", activebackground='green', background='red', 
+command=int((freq)+1))
+freqplus1.place(x=0, y=125, width=60, height=30  )
+
+
+freqplus2 =  Button(fenetreprincipale, text="+10", activebackground='green', background='red')
+freqplus2.place(x=60, y=125, width=30, height=30)
+
+freqplus3 =  Button(fenetreprincipale, text="+100", activebackground='green', background='red')
+freqplus3.place(x=90, y=125, width=40, height=30)
+
+freqplus4 =  Button(fenetreprincipale, text="+1000", activebackground='green', background='red')
+freqplus4.place(x=130, y=125, width=45, height=30)
+
+
+
+freqmoin1 =  Button(fenetreprincipale, text="freq -1", activebackground='green', background='blue')
+freqmoin1.place(x=0, y=155, width=60, height=30)
+
+freqplus2 =  Button(fenetreprincipale, text="-10", activebackground='green', background='blue')
+freqplus2.place(x=60, y=155, width=30, height=30)
+
+freqmoin3 =  Button(fenetreprincipale, text="-100", activebackground='green', background='blue')
+freqmoin3.place(x=90, y=155, width=40, height=30)
+
+freqmoin4 =  Button(fenetreprincipale, text="-1000", activebackground='green', background='blue')
+freqmoin4.place(x=130, y=155, width=45, height=30)
+
+#samplerate
+
+sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
+from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
+sample_rate0.set(sample_rate)
+sample_rate0.place(x=180, y=185, width=500 , height=60)
+
+
+re_sample_rate0 = Scale(fenetreprincipale, label="re_sample_rate", 
+from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
+re_sample_rate0.set(re_sample_rate)
+re_sample_rate0.place(x=180, y=245, width=500 , height=60)
+
+
+ppm1 = Scale(fenetreprincipale, label="ppm",  
+from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
+ppm1.set(ppm0)
+ppm1.place(x=180, y=305, width=500 , height=60)
+
+
+
+    
+    
+
+
+"""
+sampleplus = Button()
+sampleplus.place(x=0, y=0, width=0, height=0)
+
+
+resampleplus = Button()
+resampleplus.place(x=0, y=0, width=0, height=0)
+
+
+ppmplus = Button()
+ppmplus.place(x=0, y=0, width=0, height=0)
+
+
+"""
 
 
 #######################################
@@ -339,32 +390,63 @@ raw0.place(x=120, y=75, width=60, height=35)
 
 start = Button(fenetreprincipale, text='start', activebackground='blue', 
 command=lambda: 
-start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0))
+start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1))
 start.place(x=0, y=0)
 
 stop = Button(fenetreprincipale, text='stop', activebackground='red', 
 command=lambda: stop_rtl_fm())
-stop.place(x=80, y=0)
+stop.place(x=58, y=0)
+
+kernel = Button(fenetreprincipale, text='kernel', activebackground='red', 
+command=lambda:  kernel_re(), padx=8)
+kernel.place(x=115, y=0)
+
 
 devices = Button(fenetreprincipale, text='devices', activebackground='red', 
 command=lambda:  thread1_start())
-devices.place(x=80, y=115)
+devices.place(x=70, y=95)
 
 spectre = Button(fenetreprincipale, text='spectre', activebackground='red', 
-command=lambda:  spectrum(), )
-spectre.place(x=0, y=115)
+command=lambda:  spectrum() )
+spectre.place(x=0, y=95)
 
 
-kernel = Button(fenetreprincipale, text='kernel', activebackground='red', 
-command=lambda:  kernel_re())
-kernel.place(x=0, y=145)
 
+
+
+    
 ############
 # fonction #
 ############
 
 
                
+
+
+def stop_rtl_fm():  
+    stopoutput = subprocess.run(args="killall rtl_fm", 
+    capture_output=True, shell = True, text = True)
+    time.sleep(1.5)
+    
+
+    
+def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm1 ): 
+    stop_rtl_fm()
+    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm1.get()) + "| play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
+    , shell = True, stdout=subprocess.PIPE, universal_newlines=True)
+    
+    affiche_variable()    
+    
+     
+def restart(Event):
+    
+    start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)
+    time.sleep(1.5)
+    
+frequence0.bind("<ButtonRelease-1>", restart)
+sample_rate0.bind("<ButtonRelease-1>", restart)
+re_sample_rate0.bind("<ButtonRelease-1>", restart)
+ppm1.bind("<ButtonRelease-1>", restart)
 
 def change0demodulationwbfm():
     demodulation0[0] = "wbfm"
@@ -388,64 +470,21 @@ def change0demodulationusb():
 def change0demodulationraw():
     demodulation0[0] = "raw"
 
-def stop_rtl_fm():  
-    stopoutput = subprocess.run(args="killall rtl_fm", 
-    capture_output=True, shell = True, text = True)
-    time.sleep(1.5)
-    
-
-    
-def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm0): 
-    stop_rtl_fm()
-    
-    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm0.get()) + "| play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
-    , shell = True, stdout=subprocess.PIPE, universal_newlines=True)
-   
+def affiche_variable():
     text0.delete("1.0","end")
     text0.insert(INSERT, "terminal:" "\n") 
-    text0.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0)+"\n")
+    text0.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0[0])+"\n")
     text0.insert(INSERT,"parametres utiliser: frequences   "+ str(frequence0.get())+"\n")
     text0.insert(INSERT,"parametres utiliser: sample-rate     "+ str(sample_rate0.get())+"\n")
     text0.insert(INSERT,"parametres utiliser: re-sample-rate     "+ str(re_sample_rate0.get())+"\n")
-    text0.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm1.get())+"\n")
     
-
-    
-    
-    
-     
-def restart(Event):
-    kernel_re()
-    start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm0)
-    time.sleep(1.5)
-    
-frequence0.bind("<ButtonRelease-1>", restart)
-sample_rate0.bind("<ButtonRelease-1>", restart)
-re_sample_rate0.bind("<ButtonRelease-1>", restart)
-ppm0.bind("<ButtonRelease-1>", restart)
-
-#kernel
-
-
-
-#    startoutput = subprocess.Popen(args="rtl_fm -M wbfm -f 100M -s 250000 -r 32k | play -r 32k -t raw -e s -b 16 -c 1 -V1 -", 
-#    shell = True, text = True)    
-    
-   
-# ajoute volume , mute
-
-
-
-
-#################################
-###      -  waterfall  -      ###
-#################################
-
 
 
 #################################
 #  fenetreprincipale.mainloop() #
 #################################
+
 
 fenetreprincipale.mainloop()
 
