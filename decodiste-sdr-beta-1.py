@@ -77,7 +77,7 @@ fenetreprincipale.iconphoto(False, icone)
 ############
 
 text0 = Text(fenetreprincipale, border= 4 )
-text0.place(x=180, y=0, height=125, width=500)
+text0.place(x=180, y=0, height=135, width=500)
 
 
 #####################################################################
@@ -89,7 +89,7 @@ demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
 sample_rate = int(2400e2)
 re_sample_rate = int(32000)
-ppm0 = int(1)
+ppm0 = int(1)  #not 0 for spectrum
 
 
 ###########################################
@@ -301,63 +301,117 @@ raw0.place(x=120, y=60, width=60, height=35)
 
 
 ###################################################
-# bouton scale + plus frequence, ppm, sample_rate #
+# bouton scale + ajust frequence, ppm, sample_rate #
 ###################################################
 
-#freq
+
 
 frequence0 = Scale(fenetreprincipale, label="frequence", 
 from_=22000000, to=900000000, resolution=1, orient=HORIZONTAL, activebackground="yellow", 
 background="green")
 frequence0.set(freq)
-frequence0.place(x=180, y=125, width=500 , height=60)
+frequence0.place(x=180, y=135, width=500 , height=60)
+
 
 freqplus1 =  Button(fenetreprincipale, text="freq +1", activebackground='green', background='red', 
-command=int((freq)+1))
-freqplus1.place(x=0, y=125, width=60, height=30  )
+command=lambda: freqplusvar1())
+freqplus1.place(x=0, y=135, width=60, height=30  )
+
+def freqplusvar1():
+    global freq
+    freq += 1
+    frequence0.set(freq)
+    
+
+freqplus2 =  Button(fenetreprincipale, text="+10", activebackground='green', background='red',
+command=lambda: freqplusvar2())
+freqplus2.place(x=60, y=135, width=30, height=30)
+
+def freqplusvar2():
+    global freq
+    freq += 10
+    frequence0.set(freq)
+    
+
+freqplus3 =  Button(fenetreprincipale, text="+100", activebackground='green', background='red',
+command=lambda: freqplusvar3())
+freqplus3.place(x=90, y=135, width=40, height=30)
+
+def freqplusvar3():
+    global freq
+    freq += 100
+    frequence0.set(freq)
+    
+
+freqplus4 =  Button(fenetreprincipale, text="+1000", activebackground='green', background='red',
+command=lambda: freqplusvar4())
+freqplus4.place(x=130, y=135, width=45, height=30)
+
+def freqplusvar4():
+    global freq
+    freq += 1000
+    frequence0.set(freq)
+    
 
 
-freqplus2 =  Button(fenetreprincipale, text="+10", activebackground='green', background='red')
-freqplus2.place(x=60, y=125, width=30, height=30)
+freqmoins1 =  Button(fenetreprincipale, text="freq -1", activebackground='green', background='blue',
+command=lambda: freqmoinsvar1())
+freqmoins1.place(x=0, y=165, width=60, height=30)
 
-freqplus3 =  Button(fenetreprincipale, text="+100", activebackground='green', background='red')
-freqplus3.place(x=90, y=125, width=40, height=30)
-
-freqplus4 =  Button(fenetreprincipale, text="+1000", activebackground='green', background='red')
-freqplus4.place(x=130, y=125, width=45, height=30)
-
+def freqmoinsvar1():
+    global freq
+    freq -= 1
+    frequence0.set(freq)
 
 
-freqmoin1 =  Button(fenetreprincipale, text="freq -1", activebackground='green', background='blue')
-freqmoin1.place(x=0, y=155, width=60, height=30)
+freqmoins2 =  Button(fenetreprincipale, text="-10", activebackground='green', background='blue',
+command=lambda: freqmoinsvar2())
+freqmoins2.place(x=60, y=165, width=30, height=30)
 
-freqplus2 =  Button(fenetreprincipale, text="-10", activebackground='green', background='blue')
-freqplus2.place(x=60, y=155, width=30, height=30)
+def freqmoinsvar2():
+    global freq
+    freq -= 10
+    frequence0.set(freq)
 
-freqmoin3 =  Button(fenetreprincipale, text="-100", activebackground='green', background='blue')
-freqmoin3.place(x=90, y=155, width=40, height=30)
 
-freqmoin4 =  Button(fenetreprincipale, text="-1000", activebackground='green', background='blue')
-freqmoin4.place(x=130, y=155, width=45, height=30)
+freqmoins3 =  Button(fenetreprincipale, text="-100", activebackground='green', background='blue',
+command=lambda: freqmoinsvar3())
+freqmoins3.place(x=90, y=165, width=40, height=30)
+
+def freqmoinsvar3():
+    global freq
+    freq -= 100
+    frequence0.set(freq)
+
+
+freqmoins4 =  Button(fenetreprincipale, text="-1000", activebackground='green', background='blue',
+command=lambda: freqmoinsvar4())
+freqmoins4.place(x=130, y=165, width=45, height=30)
+
+def freqmoinsvar4():
+    global freq
+    freq -= 1000
+    frequence0.set(freq)
+
 
 #samplerate
 
 sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
 from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 sample_rate0.set(sample_rate)
-sample_rate0.place(x=180, y=185, width=500 , height=60)
+sample_rate0.place(x=180, y=195, width=500 , height=60)
 
 
 re_sample_rate0 = Scale(fenetreprincipale, label="re_sample_rate", 
 from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 re_sample_rate0.set(re_sample_rate)
-re_sample_rate0.place(x=180, y=245, width=500 , height=60)
+re_sample_rate0.place(x=180, y=255, width=500 , height=60)
 
 
 ppm1 = Scale(fenetreprincipale, label="ppm",  
 from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
 ppm1.set(ppm0)
-ppm1.place(x=180, y=305, width=500 , height=60)
+ppm1.place(x=180, y=315, width=500 , height=60)
 
 
 
@@ -365,20 +419,6 @@ ppm1.place(x=180, y=305, width=500 , height=60)
     
 
 
-"""
-sampleplus = Button()
-sampleplus.place(x=0, y=0, width=0, height=0)
-
-
-resampleplus = Button()
-resampleplus.place(x=0, y=0, width=0, height=0)
-
-
-ppmplus = Button()
-ppmplus.place(x=0, y=0, width=0, height=0)
-
-
-"""
 
 
 #######################################
@@ -434,7 +474,6 @@ def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm1 
     stop_rtl_fm()
     sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm1.get()) + "| play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
     , shell = True, stdout=subprocess.PIPE, universal_newlines=True)
-    
     affiche_variable()    
     
      
@@ -469,6 +508,8 @@ def change0demodulationusb():
 
 def change0demodulationraw():
     demodulation0[0] = "raw"
+
+
 
 def affiche_variable():
     text0.delete("1.0","end")
