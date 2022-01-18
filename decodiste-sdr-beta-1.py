@@ -27,7 +27,9 @@ import tkinter
 import subprocess
 import time
 import threading
+import sys
 import rtlsdr
+from rtlsdr import rtlsdraio
 
 
 import usb.core
@@ -35,6 +37,7 @@ import usb.util
 import usb.control
 
 from rtlsdr import *
+import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -45,10 +48,7 @@ import pyaudio
 ######################
 
 fenetreprincipale = tkinter.Tk()
-fenetreprincipale.title('decodiste-sdr-beta-NOV-2021')
-
-
-
+fenetreprincipale.title('decodiste-sdr-beta-JAN-2022')
 
 ####################################
 # taille de la fenetre par default #
@@ -67,30 +67,89 @@ fenetreprincipale.configure(bg='grey')
 # icone #
 #########
 
-
 icone = PhotoImage(file='antenne.gif')
 fenetreprincipale.iconphoto(False, icone)
 
+############
+#  texte #
+############
 
-############
-#  texte   #
-############
 
 text0 = Text(fenetreprincipale, border= 4 )
 text0.place(x=180, y=0, height=135, width=500)
+
+############
+#   Menu   #
+############
+
+fenetreprincipalemenu = tkinter.Menu(fenetreprincipale)
+
+premiermenu = tkinter.Menu(fenetreprincipalemenu)
+deuxiememenu = tkinter.Menu(fenetreprincipalemenu)
+troixiememenu = tkinter.Menu(fenetreprincipalemenu)
+quatriememenu = tkinter.Menu(fenetreprincipalemenu)
+cinquiememenu = tkinter.Menu(fenetreprincipalemenu)
+
+demodulationmenu = tkinter.Menu(premiermenu)
+frequencemenu = tkinter.Menu(premiermenu)
+ppmmenu = tkinter.Menu(premiermenu)
+sampleratemenu = tkinter.Menu(premiermenu)
+resampleratemenu = tkinter.Menu(premiermenu)
+
+devicemenu = tkinter.Menu(deuxiememenu)
+spectummenu = tkinter.Menu(troixiememenu)
+kernelmenu = tkinter.Menu(quatriememenu)
+infosmenu = tkinter.Menu(cinquiememenu)
+
+demodulationmenu.add_radiobutton(label="wbfm", command=lambda:[change0demodulationwbfm(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu.add_radiobutton(label="fm", command=lambda:[change0demodulationfm(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu.add_radiobutton(label="am", command=lambda:[change0demodulationam(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu.add_radiobutton(label="usb", command=lambda:[change0demodulationusb(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu.add_radiobutton(label="lsb", command=lambda:[change0demodulationlsb(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu.add_radiobutton(label="raw", command=lambda:[change0demodulationraw(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+
+frequencemenu.add_command(label="fréquence")
+ppmmenu.add_command(label="ppm")
+sampleratemenu.add_command(label="sample-rate")
+resampleratemenu.add_command(label="re-sample-rate")
+
+deuxiememenu.add_command(label="lancer la recherche usb...", command=lambda:interrogeusb())
+troixiememenu.add_command(label="lancer le spectre", command=lambda:spectrum())
+
+quatriememenu.add_command(label="debug", command=lambda:kernel_re())
+cinquiememenu.add_command(label="dev tartempion-sdr")
+
+fenetreprincipalemenu.add_cascade(label="paramètres", menu=premiermenu)
+
+premiermenu.add_cascade(label="demodulation", menu=demodulationmenu)
+premiermenu.add_cascade(label="frequence", menu=frequencemenu)
+premiermenu.add_cascade(label="ppm", menu=ppmmenu)
+premiermenu.add_cascade(label="samplerate", menu=sampleratemenu)
+premiermenu.add_cascade(label="re-samplerate", menu=resampleratemenu)
+
+fenetreprincipalemenu.add_cascade(label="device ?", menu=deuxiememenu)
+fenetreprincipalemenu.add_cascade(label="spectrum", menu=troixiememenu)
+fenetreprincipalemenu.add_cascade(label="kernel debug", menu=quatriememenu)
+fenetreprincipalemenu.add_cascade(label="infos", menu=cinquiememenu)
+
+
 
 
 #####################################################################
 #            class    parametres par default                        #
 #####################################################################
 
-
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
 sample_rate = int(2400e2)
 re_sample_rate = int(32000)
 ppm0 = int(1)  #not 0 for spectrum
-
 
 #################################################
 # class Appareilusb: le device est il present ? #
@@ -156,7 +215,6 @@ appareils = [
 
 
 
-
 def interrogeusb():
     for appareil in appareils: 
         interroge = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
@@ -184,13 +242,21 @@ def interrogeusb():
                             
             
             break
-############
-# spectrum #
-############
+
+#############################
+####          pyaudio    ####
+#############################
+#print(sys.stdout.read)
+#plt.specgram(A, NFFT=1024 )
+#plt.title('Spectrogram rtlsdr')  
+#plt.show()
+
 #################################
 ###      -  waterfall  -      ###
 #################################
-
+############
+# spectrum #
+############
 
 def spectrum():
     
@@ -198,19 +264,19 @@ def spectrum():
         sdr = RtlSdr()
     
         # configure device
-        sdr.sample_rate = sample_rate0.get()  # Hz
+        sdr.sample_rate = sample_rate0.get()*10  # Hz
         sdr.center_freq = frequence0.get()  # Hz
         sdr.freq_correction = ppm0  # PPM
         sdr.gain = 'auto'
 
         fig = plt.figure()
-    
+        
         graph_out = fig.add_subplot(1, 1, 1)
 
         def animate(i):
             graph_out.clear()
             #samples = sdr.read_samples(256*1024)
-            samples = sdr.read_samples(128*1024)
+            samples = sdr.read_samples(4*16384)
             # use matplotlib to estimate and plot the PSD
             graph_out.psd(samples, NFFT=1024, Fs=sdr.sample_rate /
             1e6, Fc=sdr.center_freq/1e6)
@@ -528,10 +594,10 @@ def stop_rtl_fm():
     time.sleep(1.5)
     
 
-    
+   
 def start_rtl_fm(demodulation0, frequence0, sample_rate0, re_sample_rate0, ppm1 ): 
     stop_rtl_fm()
-    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm1.get()) + "| play -r 32k -t raw -e s -b 16 -c 1 -V1 -" 
+    sdr1 = subprocess.Popen(args="rtl_fm -M "+ str(demodulation0) +" -f "+ str(frequence0.get()) +" -s "+ str(sample_rate0.get()) +" -r " + str(re_sample_rate0.get()) +" -p "+ str(ppm1.get()) + " - " + "| play -r 32k -t raw -e s -b 16 -c 1  -V1 - " 
     , shell = True, stdout=subprocess.PIPE, universal_newlines=True)
     affiche_variable()    
     
@@ -585,7 +651,7 @@ def affiche_variable():
 #  fenetreprincipale.mainloop() #
 #################################
 
-
+fenetreprincipale.config(menu=fenetreprincipalemenu)
 fenetreprincipale.mainloop()
 
 
