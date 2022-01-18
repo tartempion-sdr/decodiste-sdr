@@ -9,9 +9,9 @@ installation du programme sur votre systéme d'exploitation linux:
 
 ouvrez votre terminal. # ctrl+alt+t
 
-user@name:~$ git clone https://github.com/tartempion-sdr/decodiste-sdr.git
+user@name:~$ git clone https://github.com/tartempion-sdr/dossier-git.git
 
-user@name:~$ cd decodiste-sdr
+user@name:~$ cd dossier-git
 
 user@name:~$ ls
 
