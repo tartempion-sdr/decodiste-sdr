@@ -25,6 +25,7 @@ pip install pyusb
 from cProfile import label
 from cmd import PROMPT
 from multiprocessing import Manager
+from operator import index
 import tkinter.font as tkFont
 from ctypes.wintypes import SIZE
 from distutils import command
@@ -78,51 +79,6 @@ fenetreprincipale.configure(bg='grey')
 icone = PhotoImage(file='antenne.gif')
 fenetreprincipale.iconphoto(False, icone)
 
-############
-#  texte #
-############
-
-
-text0 = Text(fenetreprincipale, border= 4 )
-text0.place(x=0, y=0, height=115, width=125)
-
-    
-text0.insert(INSERT,"demodulation:"+"\n")
-text0.insert(INSERT,"frequences:"+"\n")
-text0.insert(INSERT,"ppm:"+"\n")
-text0.insert(INSERT,"sample-rate:"+"\n")
-text0.insert(INSERT,"resample-rate:"+"\n")
-
-    
-
-text1 = Text(fenetreprincipale, border= 4 )
-text1.place(x=125, y=0, height=115, width=100)
-
-
-
-text1inputfreq = Text(fenetreprincipale )
-text1inputfreq.place(x=225, y=20, height=18, width=110)
-
-text1inputppm = Text(fenetreprincipale )
-text1inputppm.place(x=225, y=38, height=18, width=110)
-
-text1inputsamp = Text(fenetreprincipale )
-text1inputsamp.place(x=225, y=56, height=18, width=110)
-
-text1inputresam = Text(fenetreprincipale )
-text1inputresam.place(x=225, y=74, height=18, width=110)
-
-
-
-
-text2 = Text(fenetreprincipale, border= 4 )
-text2.place(x=560, y=0, height=115, width=510)
-
-text3 = Text(fenetreprincipale, border= 4 )
-text3.configure(font=("Times New Roman", 20))
-text3.place(x=0, y=200, height=50, width=225)
-
-
 
 ############
 #   Menu   #
@@ -166,9 +122,58 @@ fenetreprincipalemenu.add_command(label="dev tartempion-sdr")
 
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
+ppm0 = int(1)  #not 0 for spectrum
 sample_rate = int(2400e2)
 re_sample_rate = int(32000)
-ppm0 = int(1)  #not 0 for spectrum
+
+
+
+
+############
+#  texte #
+############
+
+
+text0 = Text(fenetreprincipale, border= 4 )
+text0.place(x=0, y=0, height=115, width=125)
+
+    
+text0.insert(INSERT,"demodulation:"+"\n")
+text0.insert(INSERT,"frequences:"+"\n")
+text0.insert(INSERT,"ppm:"+"\n")
+text0.insert(INSERT,"sample-rate:"+"\n")
+text0.insert(INSERT,"resample-rate:"+"\n")
+
+    
+
+text1 = Text(fenetreprincipale, border= 4 )
+text1.place(x=125, y=0, height=115, width=100)
+
+
+
+text1inputfreq = Entry(fenetreprincipale, justify="right" )
+text1inputfreq.place(x=225, y=20, height=18, width=110)
+
+text1inputppm = Entry(fenetreprincipale, justify="right" )
+text1inputppm.place(x=225, y=38, height=18, width=110)
+
+text1inputsamp = Entry(fenetreprincipale, justify="right" )
+text1inputsamp.place(x=225, y=56, height=18, width=110)
+
+text1inputresam = Entry(fenetreprincipale, justify="right", textvariable=re_sample_rate)
+text1inputresam.bind("<Return>", textvariabl = re_sample_rate)
+text1inputresam.place(x=225, y=74, height=18, width=110)
+
+
+
+text2 = Text(fenetreprincipale, border= 4 )
+text2.place(x=560, y=0, height=115, width=510)
+
+text3 = Text(fenetreprincipale, border= 4 )
+text3.configure(font=("Times New Roman", 20))
+text3.place(x=0, y=200, height=50, width=225)
+
+
 
 ################
 #  menu demod #
