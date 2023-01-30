@@ -82,6 +82,16 @@ fenetreprincipale.iconphoto(False, icone)
 text0 = Text(fenetreprincipale, border= 4 )
 text0.place(x=180, y=0, height=135, width=500)
 
+#####################################################################
+#            class    parametres par default                        #
+#####################################################################
+
+demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
+freq = int(94.2e6)
+sample_rate = int(2400e2)
+re_sample_rate = int(32000)
+ppm0 = int(1)  #not 0 for spectrum
+
 ############
 #   Menu   #
 ############
@@ -106,7 +116,8 @@ kernelmenu = tkinter.Menu(quatriememenu)
 infosmenu = tkinter.Menu(cinquiememenu)
 
 
-frequencemenu.add_command(label="fréquence")
+#freqinput= input()
+frequencemenu.add_command(label=str(freq))
 ppmmenu.add_command(label="ppm")
 sampleratemenu.add_command(label="sample-rate")
 resampleratemenu.add_command(label="re-sample-rate")
@@ -119,11 +130,11 @@ cinquiememenu.add_command(label="dev tartempion-sdr")
 
 fenetreprincipalemenu.add_cascade(label="paramètres", menu=premiermenu)
 
-premiermenu.add_cascade(label="demodulation", menu=demodulationmenu)
-premiermenu.add_cascade(label="frequence", menu=frequencemenu)
-premiermenu.add_cascade(label="ppm", menu=ppmmenu)
-premiermenu.add_cascade(label="samplerate", menu=sampleratemenu)
-premiermenu.add_cascade(label="re-samplerate", menu=resampleratemenu)
+premiermenu.add_cascade(label="demodulation :", menu=demodulationmenu)
+premiermenu.add_cascade(label="frequence :", menu=frequencemenu)
+premiermenu.add_cascade(label="ppm :", menu=ppmmenu)
+premiermenu.add_cascade(label="samplerate :", menu=sampleratemenu)
+premiermenu.add_cascade(label="re-samplerate :", menu=resampleratemenu)
 
 fenetreprincipalemenu.add_cascade(label="device ?", menu=deuxiememenu)
 fenetreprincipalemenu.add_cascade(label="spectrum", menu=troixiememenu)
@@ -158,16 +169,6 @@ demodulationmenu5 = demodulationmenu.add_radiobutton(label="raw", variable=demod
 command=lambda:[change0demodulationraw(), raw0.select(),
 stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 
-
-#####################################################################
-#            class    parametres par default                        #
-#####################################################################
-
-demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
-freq = int(94.2e6)
-sample_rate = int(2400e2)
-re_sample_rate = int(32000)
-ppm0 = int(1)  #not 0 for spectrum
 
 #################################################
 # class Appareilusb: le device est il present ? #
@@ -395,6 +396,7 @@ frequence0 = Scale(fenetreprincipale, label="frequence",
 from_=22000000, to=900000000, resolution=1, orient=HORIZONTAL, activebackground="yellow", 
 background="green")
 frequence0.set(freq)
+frequence0.get(int())
 frequence0.place(x=0, y=195, width=500 , height=60)
 
 
