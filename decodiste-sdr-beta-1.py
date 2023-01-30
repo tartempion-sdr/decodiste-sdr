@@ -48,7 +48,7 @@ import numpy as np
 import pyaudio
 
 ######################
-# titre du programme bug#
+# titre du programme #
 ######################
 
 fenetreprincipale = tkinter.Tk()
