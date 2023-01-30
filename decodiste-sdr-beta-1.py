@@ -132,21 +132,30 @@ fenetreprincipalemenu.add_cascade(label="infos", menu=cinquiememenu)
 
 
 demoduleselect= IntVar()
-demodulationmenu0 = demodulationmenu.add_radiobutton(label="wbfm", variable=demoduleselect, value=1, command=lambda:[change0demodulationwbfm(),
+demodulationmenu0 = demodulationmenu.add_radiobutton(label="wbfm", variable=demoduleselect, value=1, 
+command=lambda:[change0demodulationwbfm(), wbfm0.select(),
 stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 ## dedaut wbfm ##
 demoduleselect.set(1)
 
+demodulationmenu1 = demodulationmenu.add_radiobutton(label="fm", variable=demoduleselect, value=2, 
+command= lambda:[change0demodulationfm(), fm0.select(), 
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 
-demodulationmenu1 = demodulationmenu.add_radiobutton(label="fm", variable=demoduleselect, value=2, command= lambda:[change0demodulationfm(),
+demodulationmenu2 = demodulationmenu.add_radiobutton(label="am", variable=demoduleselect, value=3, 
+command=lambda:[change0demodulationam(), am0.select(),
 stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu2 = demodulationmenu.add_radiobutton(label="am", variable=demoduleselect, value=3, command=lambda:[change0demodulationam(),
+
+demodulationmenu4 = demodulationmenu.add_radiobutton(label="lsb", variable=demoduleselect, value=4, 
+command=lambda:[change0demodulationlsb(), lsb0.select(),
 stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu3 = demodulationmenu.add_radiobutton(label="usb", variable=demoduleselect, value=4, command=lambda:[change0demodulationusb(),
+
+demodulationmenu3 = demodulationmenu.add_radiobutton(label="usb", variable=demoduleselect, value=5, 
+command=lambda:[change0demodulationusb(), usb0.select(),
 stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu4 = demodulationmenu.add_radiobutton(label="lsb", variable=demoduleselect, value=5, command=lambda:[change0demodulationlsb(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu5 = demodulationmenu.add_radiobutton(label="raw", variable=IntVar, value=6, command=lambda:[change0demodulationraw(),
+
+demodulationmenu5 = demodulationmenu.add_radiobutton(label="raw", variable=demoduleselect, value=6, 
+command=lambda:[change0demodulationraw(), raw0.select(),
 stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 
 
@@ -334,7 +343,7 @@ def thread1_start():
 
 
 wbfm0 =  Radiobutton(fenetreprincipale, indicatoron=False, value=0, variable=0, command=lambda: 
-[change0demodulationwbfm(),
+[change0demodulationwbfm(), demoduleselect.set(1),
 stop_rtl_fm(),
 start_rtl_fm(demodulation0[1], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="wbfm", activebackground='green', background='purple')
 wbfm0.place(x=0, y=30, width=60, height=35)
@@ -342,33 +351,33 @@ wbfm0.place(x=0, y=30, width=60, height=35)
 wbfm0.select()
 
 fm0 = Radiobutton(fenetreprincipale, indicatoron=False, value=1, variable=0, command=lambda: 
-[change0demodulationfm(),
+[change0demodulationfm(), demoduleselect.set(2),
 stop_rtl_fm(),
 start_rtl_fm(demodulation0[2], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="fm", activebackground='green', background='purple')
 fm0.place(x=60, y=30, width=60, height=35)
 
 
 am0 = Radiobutton(fenetreprincipale, indicatoron=False, value=2, variable=0, command=lambda: 
-[change0demodulationam(),
+[change0demodulationam(), demoduleselect.set(3),
 stop_rtl_fm(), 
 start_rtl_fm(demodulation0[3], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="am  ", activebackground='green', background='purple')
 am0.place(x=120, y=30, width=60, height=35)
 
 
 lsb0 = Radiobutton(fenetreprincipale, indicatoron=False, value=3, variable=0, command=lambda:  
-[change0demodulationlsb(),
+[change0demodulationlsb(), demoduleselect.set(4),
 stop_rtl_fm(), 
 start_rtl_fm(demodulation0[4], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="lsb ", activebackground='green', background='purple')
 lsb0.place(x=0, y=60, width=60, height=35)
 
 usb0 = Radiobutton(fenetreprincipale, indicatoron=False, value=4, variable=0, command=lambda: 
-[change0demodulationusb(),
+[change0demodulationusb(), demoduleselect.set(5),
 stop_rtl_fm(), 
 start_rtl_fm(demodulation0[5], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="usb ", activebackground='green', background='purple')
 usb0.place(x=60, y=60, width=60, height=35)
 
 raw0 = Radiobutton(fenetreprincipale, indicatoron=False, value=5, variable=0, command=lambda:  
-[change0demodulationraw(),
+[change0demodulationraw(), demoduleselect.set(6),
 stop_rtl_fm(),
 start_rtl_fm(demodulation0[6], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="raw ", activebackground='green', background='purple')
 raw0.place(x=120, y=60, width=60, height=35)
