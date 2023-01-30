@@ -23,18 +23,15 @@ pip install pyusb
 #########################
 
 from cProfile import label
-from cmd import PROMPT
-from multiprocessing import Manager
-from operator import index
-import tkinter.font as tkFont
-from ctypes.wintypes import SIZE
-from distutils import command
+from cgitb import text
+from select import select
 from tkinter import *
 import tkinter 
 import subprocess
 import time
 import threading
 import sys
+from typing import Literal
 import rtlsdr
 from rtlsdr import rtlsdraio
 
@@ -47,13 +44,11 @@ from rtlsdr import *
 import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
 import numpy as np
 import pyaudio
 
 ######################
-# titre du programme #
+# titre du programme bug#
 ######################
 
 fenetreprincipale = tkinter.Tk()
@@ -79,6 +74,13 @@ fenetreprincipale.configure(bg='grey')
 icone = PhotoImage(file='antenne.gif')
 fenetreprincipale.iconphoto(False, icone)
 
+############
+#  texte #
+############
+
+
+text0 = Text(fenetreprincipale, border= 4 )
+text0.place(x=180, y=0, height=135, width=500)
 
 ############
 #   Menu   #
@@ -86,34 +88,66 @@ fenetreprincipale.iconphoto(False, icone)
 
 fenetreprincipalemenu = tkinter.Menu(fenetreprincipale)
 
-startmenu        = tkinter.Menu(fenetreprincipalemenu)
-stopmenu         = tkinter.Menu(fenetreprincipalemenu)
-devicemenu       = tkinter.Menu(fenetreprincipalemenu)
-spectummenu      = tkinter.Menu(fenetreprincipalemenu)
+premiermenu = tkinter.Menu(fenetreprincipalemenu)
+deuxiememenu = tkinter.Menu(fenetreprincipalemenu)
+troixiememenu = tkinter.Menu(fenetreprincipalemenu)
+quatriememenu = tkinter.Menu(fenetreprincipalemenu)
+cinquiememenu = tkinter.Menu(fenetreprincipalemenu)
+
+demodulationmenu = tkinter.Menu(premiermenu)
+frequencemenu = tkinter.Menu(premiermenu)
+ppmmenu = tkinter.Menu(premiermenu)
+sampleratemenu = tkinter.Menu(premiermenu)
+resampleratemenu = tkinter.Menu(premiermenu)
+
+devicemenu = tkinter.Menu(deuxiememenu)
+spectummenu = tkinter.Menu(troixiememenu)
+kernelmenu = tkinter.Menu(quatriememenu)
+infosmenu = tkinter.Menu(cinquiememenu)
 
 
+frequencemenu.add_command(label="fréquence")
+ppmmenu.add_command(label="ppm")
+sampleratemenu.add_command(label="sample-rate")
+resampleratemenu.add_command(label="re-sample-rate")
+
+deuxiememenu.add_command(label="lancer la recherche usb...", command=lambda:interrogeusb())
+troixiememenu.add_command(label="lancer le spectre", command=lambda:spectrum())
+
+quatriememenu.add_command(label="debug", command=lambda:kernel_re())
+cinquiememenu.add_command(label="dev tartempion-sdr")
+
+fenetreprincipalemenu.add_cascade(label="paramètres", menu=premiermenu)
+
+premiermenu.add_cascade(label="demodulation", menu=demodulationmenu)
+premiermenu.add_cascade(label="frequence", menu=frequencemenu)
+premiermenu.add_cascade(label="ppm", menu=ppmmenu)
+premiermenu.add_cascade(label="samplerate", menu=sampleratemenu)
+premiermenu.add_cascade(label="re-samplerate", menu=resampleratemenu)
+
+fenetreprincipalemenu.add_cascade(label="device ?", menu=deuxiememenu)
+fenetreprincipalemenu.add_cascade(label="spectrum", menu=troixiememenu)
+fenetreprincipalemenu.add_cascade(label="kernel debug", menu=quatriememenu)
+fenetreprincipalemenu.add_cascade(label="infos", menu=cinquiememenu)
 
 
-cartesonmenu     = tkinter.Menu(fenetreprincipalemenu)
-kernelmenu       = tkinter.Menu(fenetreprincipalemenu)
-infosmenu        = tkinter.Menu(fenetreprincipalemenu)
+demoduleselect= IntVar()
+demodulationmenu0 = demodulationmenu.add_radiobutton(label="wbfm", variable=demoduleselect, value=1, command=lambda:[change0demodulationwbfm(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+## dedaut wbfm ##
+demoduleselect.set(1)
 
 
-
-fenetreprincipalemenu.add_command(label="start", command=lambda:start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1))
-fenetreprincipalemenu.add_command(label="stop", command=lambda:stop_rtl_fm())
-fenetreprincipalemenu.add_command(label="device ?", command=lambda:thread1_start())
-fenetreprincipalemenu.add_command(label="lancer le spectre", command=lambda:spectrum())
-
-
-
-fenetreprincipalemenu.add_command(label="carte-son")
-fenetreprincipalemenu.add_command(label="debug", command=lambda:kernel_re())
-fenetreprincipalemenu.add_command(label="dev tartempion-sdr")
-
-
-
-
+demodulationmenu1 = demodulationmenu.add_radiobutton(label="fm", variable=demoduleselect, value=2, command= lambda:[change0demodulationfm(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu2 = demodulationmenu.add_radiobutton(label="am", variable=demoduleselect, value=3, command=lambda:[change0demodulationam(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu3 = demodulationmenu.add_radiobutton(label="usb", variable=demoduleselect, value=4, command=lambda:[change0demodulationusb(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu4 = demodulationmenu.add_radiobutton(label="lsb", variable=demoduleselect, value=5, command=lambda:[change0demodulationlsb(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
+demodulationmenu5 = demodulationmenu.add_radiobutton(label="raw", variable=IntVar, value=6, command=lambda:[change0demodulationraw(),
+stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
 
 
 #####################################################################
@@ -122,88 +156,9 @@ fenetreprincipalemenu.add_command(label="dev tartempion-sdr")
 
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
-ppm0 = int(1)  #not 0 for spectrum
 sample_rate = int(2400e2)
 re_sample_rate = int(32000)
-
-
-
-
-############
-#  texte #
-############
-
-
-text0 = Text(fenetreprincipale, border= 4 )
-text0.place(x=0, y=0, height=115, width=125)
-
-    
-text0.insert(INSERT,"demodulation:"+"\n")
-text0.insert(INSERT,"frequences:"+"\n")
-text0.insert(INSERT,"ppm:"+"\n")
-text0.insert(INSERT,"sample-rate:"+"\n")
-text0.insert(INSERT,"resample-rate:"+"\n")
-
-    
-
-text1 = Text(fenetreprincipale, border= 4 )
-text1.place(x=125, y=0, height=115, width=100)
-
-
-
-text1inputfreq = Entry(fenetreprincipale, justify="right" )
-text1inputfreq.place(x=225, y=20, height=18, width=110)
-
-text1inputppm = Entry(fenetreprincipale, justify="right" )
-text1inputppm.place(x=225, y=38, height=18, width=110)
-
-text1inputsamp = Entry(fenetreprincipale, justify="right" )
-text1inputsamp.place(x=225, y=56, height=18, width=110)
-
-text1inputresam = Entry(fenetreprincipale, justify="right", textvariable=re_sample_rate)
-text1inputresam.bind("<Return>", textvariabl = re_sample_rate)
-text1inputresam.place(x=225, y=74, height=18, width=110)
-
-
-
-text2 = Text(fenetreprincipale, border= 4 )
-text2.place(x=560, y=0, height=115, width=510)
-
-text3 = Text(fenetreprincipale, border= 4 )
-text3.configure(font=("Times New Roman", 20))
-text3.place(x=0, y=200, height=50, width=225)
-
-
-
-################
-#  menu demod #
-################
-demodulationmenu = Menubutton(fenetreprincipale, text="> demodulation")
-
-
-demodulationmenu.menu = Menu(demodulationmenu, tearoff=0)
-demodulationmenu["menu"] = demodulationmenu.menu
-demodulationmenu.place(x=225, y=0, height=18, width=110)
-
-
-demodulationmenu.menu.add_radiobutton(label="wbfm", command=lambda:[change0demodulationwbfm(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu.menu.add_radiobutton(label="fm", command=lambda:[change0demodulationfm(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu.menu.add_radiobutton(label="am", command=lambda:[change0demodulationam(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu.menu.add_radiobutton(label="usb", command=lambda:[change0demodulationusb(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu.menu.add_radiobutton(label="lsb", command=lambda:[change0demodulationlsb(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-demodulationmenu.menu.add_radiobutton(label="raw", command=lambda:[change0demodulationraw(),
-stop_rtl_fm(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-
-
-
- 
-
-
+ppm0 = int(1)  #not 0 for spectrum
 
 #################################################
 # class Appareilusb: le device est il present ? #
@@ -268,17 +223,17 @@ appareils = [
     idusb21]
 
 
-    
 
 def interrogeusb():
     for appareil in appareils: 
         interroge = usb.core.find(idVendor=appareil.idvendeur, idProduct=appareil.idproducteur)
         if interroge is None:
-            text2.delete("1.0","end")
-            text2.insert(INSERT, " nombre de devices DVB-T interogé = " + str(appareils.index(appareil)+1) + " |" + str(appareil.keysymbole) + str(appareil.keysymbolefin) + "|"
-            +  "\n" )
+            text0.delete("1.0","end")
+            text0.insert(INSERT, "Liste de Devices interogés ... " + " |" + str(appareil.keysymbole) + str(appareil.keysymbolefin) + "|"
+            +  "\n" 
+            + " nombre de devices DVB-T interogé = " + str(appareils.index(appareil)+1) + "\n"  )
             
-            text2.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n" 
+            text0.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n" 
                             + " idproducteur = " + str(hex(appareil.idproducteur)) + "\n"    
                             + " tunner = " + str(appareil.tunner) + "\n"  
                             + " device name = " + str(appareil.devicename) + "\n" 
@@ -287,9 +242,9 @@ def interrogeusb():
 
         else:
             #nommé une variable == a appareil trouvé
-            text2.delete("1.0","end")
-            text2.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" )            
-            text2.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
+            text0.delete("1.0","end")
+            text0.insert(INSERT, "====-> Device trouvé !! <-====" + "\n" )            
+            text0.insert(INSERT,  " idvendeur = " + str(hex(appareil.idvendeur)) + "\n"   
                             + " idproducteur = " + str(hex(appareil.idproducteur))+ "\n"    
                             + " tunner = " + str(appareil.tunner) + "\n"    
                             + " device name = " + str(appareil.devicename) + "\n" + "\n" )
@@ -301,6 +256,15 @@ def interrogeusb():
 ####          pyaudio    ####
 #############################
 #print(sys.stdout.read)
+#plt.specgram(A, NFFT=1024 )
+#plt.title('Spectrogram rtlsdr')  
+#plt.show()
+
+#################################
+###      -  waterfall  -      ###
+#################################
+############
+# spectrum #
 ############
 
 def spectrum():
@@ -311,16 +275,11 @@ def spectrum():
         # configure device
         sdr.sample_rate = sample_rate0.get()*10  # Hz
         sdr.center_freq = frequence0.get()  # Hz
-        sdr.freq_correction = ppm1.get()  # PPM
+        sdr.freq_correction = ppm0  # PPM
         sdr.gain = 'auto'
 
+        fig = plt.figure()
         
-        fig = plt.figure(facecolor="black", figsize=(5, 4) , dpi=100)
-        
-        
-        
-
-
         graph_out = fig.add_subplot(1, 1, 1)
 
         def animate(i):
@@ -369,23 +328,70 @@ def thread1_start():
 
 
 
+#######################################################################
+# bouton  demodulation0 = ["wbfm", "fm" , "am", "lsb", "usb", "raw" ] #
+#######################################################################
+
+
+wbfm0 =  Radiobutton(fenetreprincipale, indicatoron=False, value=0, variable=0, command=lambda: 
+[change0demodulationwbfm(),
+stop_rtl_fm(),
+start_rtl_fm(demodulation0[1], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="wbfm", activebackground='green', background='purple')
+wbfm0.place(x=0, y=30, width=60, height=35)
+# wbfm0.select() met le radiobutton wfm0 actif par defaut en blanc ###
+wbfm0.select()
+
+fm0 = Radiobutton(fenetreprincipale, indicatoron=False, value=1, variable=0, command=lambda: 
+[change0demodulationfm(),
+stop_rtl_fm(),
+start_rtl_fm(demodulation0[2], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="fm", activebackground='green', background='purple')
+fm0.place(x=60, y=30, width=60, height=35)
+
+
+am0 = Radiobutton(fenetreprincipale, indicatoron=False, value=2, variable=0, command=lambda: 
+[change0demodulationam(),
+stop_rtl_fm(), 
+start_rtl_fm(demodulation0[3], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="am  ", activebackground='green', background='purple')
+am0.place(x=120, y=30, width=60, height=35)
+
+
+lsb0 = Radiobutton(fenetreprincipale, indicatoron=False, value=3, variable=0, command=lambda:  
+[change0demodulationlsb(),
+stop_rtl_fm(), 
+start_rtl_fm(demodulation0[4], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="lsb ", activebackground='green', background='purple')
+lsb0.place(x=0, y=60, width=60, height=35)
+
+usb0 = Radiobutton(fenetreprincipale, indicatoron=False, value=4, variable=0, command=lambda: 
+[change0demodulationusb(),
+stop_rtl_fm(), 
+start_rtl_fm(demodulation0[5], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="usb ", activebackground='green', background='purple')
+usb0.place(x=60, y=60, width=60, height=35)
+
+raw0 = Radiobutton(fenetreprincipale, indicatoron=False, value=5, variable=0, command=lambda:  
+[change0demodulationraw(),
+stop_rtl_fm(),
+start_rtl_fm(demodulation0[6], frequence0, sample_rate0, re_sample_rate0, ppm1)], text="raw ", activebackground='green', background='purple')
+raw0.place(x=120, y=60, width=60, height=35)
+
+
+
+
 ###################################################
 # bouton scale + ajust frequence, ppm, sample_rate #
 ###################################################
 
 
 
-frequence0 = Scale(fenetreprincipale, 
+frequence0 = Scale(fenetreprincipale, label="frequence", 
 from_=22000000, to=900000000, resolution=1, orient=HORIZONTAL, activebackground="yellow", 
-background="green", showvalue=0)
-
+background="green")
 frequence0.set(freq)
-frequence0.place(x=335, y=20, width=225 , height=18)
+frequence0.place(x=0, y=195, width=500 , height=60)
 
 
-freqplus1 =  Button(fenetreprincipale, text="+", activebackground='green', background='red', 
+freqplus1 =  Button(fenetreprincipale, text="freq +1", activebackground='green', background='red', 
 command=lambda: [freqplusvar1(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus1.place(x=0, y=175, width=25, height=25  )
+freqplus1.place(x=0, y=135, width=60, height=30  )
 
 def freqplusvar1():
     global freq
@@ -393,9 +399,9 @@ def freqplusvar1():
     frequence0.set(freq)
     
 
-freqplus2 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
+freqplus2 =  Button(fenetreprincipale, text="+10", activebackground='green', background='red',
 command=lambda: [freqplusvar2(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus2.place(x=25, y=175, width=25, height=25)
+freqplus2.place(x=60, y=135, width=30, height=30)
 
 def freqplusvar2():
     global freq
@@ -403,9 +409,9 @@ def freqplusvar2():
     frequence0.set(freq)
     
 
-freqplus3 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
+freqplus3 =  Button(fenetreprincipale, text="+100", activebackground='green', background='red',
 command=lambda: [freqplusvar3(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus3.place(x=50, y=175, width=25, height=25)
+freqplus3.place(x=90, y=135, width=40, height=30)
 
 def freqplusvar3():
     global freq
@@ -413,18 +419,18 @@ def freqplusvar3():
     frequence0.set(freq)
     
 
-freqplus4 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
+freqplus4 =  Button(fenetreprincipale, text="+1 000", activebackground='green', background='red',
 command=lambda: [freqplusvar4(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus4.place(x=75, y=175, width=25, height=25)
+freqplus4.place(x=130, y=135, width=55, height=30)
 
 def freqplusvar4():
     global freq
     freq += 1000
     frequence0.set(freq)
     
-freqplus5 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
+freqplus5 =  Button(fenetreprincipale, text="+10 000", activebackground='green', background='red',
 command=lambda: [freqplusvar5(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus5.place(x=100, y=175, width=25, height=25)
+freqplus5.place(x=185, y=135, width=65, height=30)
 
 def freqplusvar5():
     global freq
@@ -432,9 +438,9 @@ def freqplusvar5():
     frequence0.set(freq)
     
 
-freqplus6 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
+freqplus6 =  Button(fenetreprincipale, text="+100 000", activebackground='green', background='red',
 command=lambda: [freqplusvar6(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus6.place(x=125, y=175, width=25, height=25)
+freqplus6.place(x=250, y=135, width=70, height=30)
 
 def freqplusvar6():
     global freq
@@ -442,9 +448,9 @@ def freqplusvar6():
     frequence0.set(freq)
 
 
-freqplus7 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
+freqplus7 =  Button(fenetreprincipale, text="+1 000 000", activebackground='green', background='red',
 command=lambda: [freqplusvar7(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus7.place(x=150, y=175, width=25, height=25)
+freqplus7.place(x=320, y=135, width=80, height=30)
 
 def freqplusvar7():
     global freq
@@ -452,30 +458,11 @@ def freqplusvar7():
     frequence0.set(freq)
     
 
-freqplus8 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
-command=lambda: [freqplusvar8(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus8.place(x=175, y=175, width=25, height=25)
-
-def freqplusvar8():
-    global freq
-    freq += 10000000
-    frequence0.set(freq)
-    
-freqplus9 =  Button(fenetreprincipale, text="+", activebackground='green', background='red',
-command=lambda: [freqplusvar9(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqplus9.place(x=200, y=175, width=25, height=25)
-
-def freqplusvar9():
-    global freq
-    freq += 100000000
-    frequence0.set(freq)
 
 
-
-
-freqmoins1 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins1 =  Button(fenetreprincipale, text="freq -1", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar1(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins1.place(x=0, y=250, width=25, height=25)
+freqmoins1.place(x=0, y=165, width=60, height=30)
 
 def freqmoinsvar1():
     global freq
@@ -483,9 +470,9 @@ def freqmoinsvar1():
     frequence0.set(freq)
 
 
-freqmoins2 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins2 =  Button(fenetreprincipale, text="-10", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar2(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins2.place(x=25, y=250, width=25, height=25)
+freqmoins2.place(x=60, y=165, width=30, height=30)
 
 def freqmoinsvar2():
     global freq
@@ -493,9 +480,9 @@ def freqmoinsvar2():
     frequence0.set(freq)
 
 
-freqmoins3 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins3 =  Button(fenetreprincipale, text="-100", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar3(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins3.place(x=50, y=250, width=25, height=25)
+freqmoins3.place(x=90, y=165, width=40, height=30)
 
 def freqmoinsvar3():
     global freq
@@ -503,9 +490,9 @@ def freqmoinsvar3():
     frequence0.set(freq)
 
 
-freqmoins4 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins4 =  Button(fenetreprincipale, text="-1 000", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar4(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins4.place(x=75, y=250, width=25, height=25)
+freqmoins4.place(x=130, y=165, width=55, height=30)
 
 def freqmoinsvar4():
     global freq
@@ -513,18 +500,18 @@ def freqmoinsvar4():
     frequence0.set(freq)
 
 
-freqmoins5 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins5 =  Button(fenetreprincipale, text="-10 000", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar5(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins5.place(x=100, y=250, width=25, height=25)
+freqmoins5.place(x=185, y=165, width=65, height=30)
 
 def freqmoinsvar5():
     global freq
     freq -= 10000
     frequence0.set(freq)
 
-freqmoins6 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins6 =  Button(fenetreprincipale, text="-100 000", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar6(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins6.place(x=125, y=250, width=25, height=25)
+freqmoins6.place(x=250, y=165, width=70, height=30)
 
 def freqmoinsvar6():
     global freq
@@ -532,9 +519,9 @@ def freqmoinsvar6():
     frequence0.set(freq)
 
 
-freqmoins7 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
+freqmoins7 =  Button(fenetreprincipale, text="-1 000 000", activebackground='green', background='blue',
 command=lambda: [freqmoinsvar7(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins7.place(x=150, y=250, width=25, height=25)
+freqmoins7.place(x=320, y=165, width=80, height=30)
 
 def freqmoinsvar7():
     global freq
@@ -542,46 +529,62 @@ def freqmoinsvar7():
     frequence0.set(freq)
     
 
-freqmoins8 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
-command=lambda: [freqmoinsvar8(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins8.place(x=175, y=250, width=25, height=25)
+#samplerate
 
-def freqmoinsvar8():
-    global freq
-    freq -= 10000000
-    frequence0.set(freq)
-
-freqmoins9 =  Button(fenetreprincipale, text="-", activebackground='green', background='blue',
-command=lambda: [freqmoinsvar9(), start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1)])
-freqmoins9.place(x=200, y=250, width=25, height=25)
-
-def freqmoinsvar9():
-    global freq
-    freq -= 100000000
-    frequence0.set(freq)
-
-
-
-
-
-
-#scale
-
-ppm1 = Scale(fenetreprincipale,  
-from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green", showvalue=0)
-ppm1.set(ppm0)
-ppm1.place(x=335, y=38, width=225 , height=18)
-
-sample_rate0 = Scale(fenetreprincipale, 
-from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green", showvalue=0)
+sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
+from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 sample_rate0.set(sample_rate)
-sample_rate0.place(x=335, y=56, width=225 , height=18)
+sample_rate0.place(x=0, y=255, width=500 , height=60)
 
 
-re_sample_rate0 = Scale(fenetreprincipale, 
-from_=0, to=44100, length=750, orient=HORIZONTAL, activebackground="yellow", background="green", showvalue=0)
+re_sample_rate0 = Scale(fenetreprincipale, label="re_sample_rate", 
+from_=0, to=44100, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
 re_sample_rate0.set(re_sample_rate)
-re_sample_rate0.place(x=335, y=74, width=225 , height=18)
+re_sample_rate0.place(x=0, y=315, width=500 , height=60)
+
+
+ppm1 = Scale(fenetreprincipale, label="ppm",  
+from_=-200, to=200, orient=HORIZONTAL, activebackground="yellow", background="green")
+ppm1.set(ppm0)
+ppm1.place(x=0, y=375, width=500 , height=60)
+
+
+
+    
+    
+
+
+
+
+#######################################
+#       boutons: start et stop        #
+#######################################
+
+
+
+
+start = Button(fenetreprincipale, text='start', activebackground='blue', 
+command=lambda: 
+start_rtl_fm(demodulation0[0], frequence0, sample_rate0, re_sample_rate0, ppm1))
+start.place(x=0, y=0)
+
+stop = Button(fenetreprincipale, text='stop', activebackground='red', 
+command=lambda: stop_rtl_fm())
+stop.place(x=58, y=0)
+
+kernel = Button(fenetreprincipale, text='kernel', activebackground='red', 
+command=lambda:  kernel_re(), padx=8)
+kernel.place(x=115, y=0)
+
+
+devices = Button(fenetreprincipale, text='devices', activebackground='red', 
+command=lambda:  thread1_start())
+devices.place(x=70, y=95)
+
+spectre = Button(fenetreprincipale, text='spectre', activebackground='red', 
+command=lambda:  spectrum() )
+spectre.place(x=0, y=95)
+
 
 
 
@@ -644,17 +647,15 @@ def change0demodulationraw():
 
 
 def affiche_variable():
-    text1.delete("1.0","end")
-    text3.delete("1.0","end")
-    text1.insert(INSERT, str("{:>11}".format(demodulation0[0]))+"\n")
-    text1.insert(INSERT, str("{:>11}".format(frequence0.get()))+"\n")
-    text3.insert(INSERT, str(frequence0.get()) + " Htz" + "\n")
-    text1.insert(INSERT, str("{:>11}".format(ppm1.get()))+"\n")
-    text1.insert(INSERT, str("{:>11}".format(sample_rate0.get()))+"\n")
-    text1.insert(INSERT, str("{:>11}".format(re_sample_rate0.get()))+"\n")
+    text0.delete("1.0","end")
+    text0.insert(INSERT, "terminal:" "\n") 
+    text0.insert(INSERT,"parametres utiliser: demodulation "+ str(demodulation0[0])+"\n")
+    text0.insert(INSERT,"parametres utiliser: frequences   "+ str(frequence0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: sample-rate     "+ str(sample_rate0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: re-sample-rate     "+ str(re_sample_rate0.get())+"\n")
+    text0.insert(INSERT,"parametres utiliser: ppm          "+ str(ppm1.get())+"\n")
     
 
-affiche_variable()
 
 #################################
 #  fenetreprincipale.mainloop() #
