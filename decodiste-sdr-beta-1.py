@@ -88,6 +88,7 @@ text0.place(x=180, y=0, height=135, width=500)
 
 demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
+
 sample_rate = int(2400e2)
 re_sample_rate = int(32000)
 ppm0 = int(1)  #not 0 for spectrum
@@ -98,29 +99,31 @@ ppm0 = int(1)  #not 0 for spectrum
 
 fenetreprincipalemenu = tkinter.Menu(fenetreprincipale)
 
-premiermenu = tkinter.Menu(fenetreprincipalemenu)
-deuxiememenu = tkinter.Menu(fenetreprincipalemenu)
-troixiememenu = tkinter.Menu(fenetreprincipalemenu)
-quatriememenu = tkinter.Menu(fenetreprincipalemenu)
-cinquiememenu = tkinter.Menu(fenetreprincipalemenu)
+premiermenu = tkinter.Menu(fenetreprincipalemenu, tearoff=0)
+deuxiememenu = tkinter.Menu(fenetreprincipalemenu, tearoff=0)
+troixiememenu = tkinter.Menu(fenetreprincipalemenu, tearoff=0)
+quatriememenu = tkinter.Menu(fenetreprincipalemenu, tearoff=0)
+cinquiememenu = tkinter.Menu(fenetreprincipalemenu, tearoff=0)
 
-demodulationmenu = tkinter.Menu(premiermenu)
-frequencemenu = tkinter.Menu(premiermenu)
-ppmmenu = tkinter.Menu(premiermenu)
-sampleratemenu = tkinter.Menu(premiermenu)
-resampleratemenu = tkinter.Menu(premiermenu)
+demodulationmenu = tkinter.Menu(premiermenu, tearoff=0)
+frequencemenu = tkinter.Menu(premiermenu, tearoff=0)
+ppmmenu = tkinter.Menu(premiermenu, tearoff=0)
+sampleratemenu = tkinter.Menu(premiermenu, tearoff=0)
+resampleratemenu = tkinter.Menu(premiermenu, tearoff=0)
 
-devicemenu = tkinter.Menu(deuxiememenu)
-spectummenu = tkinter.Menu(troixiememenu)
-kernelmenu = tkinter.Menu(quatriememenu)
-infosmenu = tkinter.Menu(cinquiememenu)
+devicemenu = tkinter.Menu(deuxiememenu, tearoff=0)
+spectummenu = tkinter.Menu(troixiememenu, tearoff=0)
+kernelmenu = tkinter.Menu(quatriememenu, tearoff=0)
+infosmenu = tkinter.Menu(cinquiememenu, tearoff=0)
+
 
 
 #freqinput= input()
-frequencemenu.add_command(label=str(freq))
-ppmmenu.add_command(label="ppm")
-sampleratemenu.add_command(label="sample-rate")
-resampleratemenu.add_command(label="re-sample-rate")
+
+frequencemenu.add_command(label= str(freq))
+ppmmenu.add_command(label=str(ppm0))
+sampleratemenu.add_command(label=str(sample_rate))
+resampleratemenu.add_command(label=str(re_sample_rate))
 
 deuxiememenu.add_command(label="lancer la recherche usb...", command=lambda:interrogeusb())
 troixiememenu.add_command(label="lancer le spectre", command=lambda:spectrum())
@@ -391,13 +394,15 @@ raw0.place(x=120, y=60, width=60, height=35)
 ###################################################
 
 
-
 frequence0 = Scale(fenetreprincipale, label="frequence", 
 from_=22000000, to=900000000, resolution=1, orient=HORIZONTAL, activebackground="yellow", 
 background="green")
 frequence0.set(freq)
-frequence0.get(int())
 frequence0.place(x=0, y=195, width=500 , height=60)
+
+
+   
+
 
 
 freqplus1 =  Button(fenetreprincipale, text="freq +1", activebackground='green', background='red', 
@@ -540,7 +545,7 @@ def freqmoinsvar7():
     frequence0.set(freq)
     
 
-#samplerate
+# samplerate
 
 sample_rate0 = Scale(fenetreprincipale, label="sample_rate", 
 from_=0, to=3000000, length=750, orient=HORIZONTAL, activebackground="yellow", background="green")
@@ -674,5 +679,4 @@ def affiche_variable():
 
 fenetreprincipale.config(menu=fenetreprincipalemenu)
 fenetreprincipale.mainloop()
-
 
