@@ -117,14 +117,6 @@ kernelmenu = tkinter.Menu(quatriememenu, tearoff=0)
 infosmenu = tkinter.Menu(cinquiememenu, tearoff=0)
 
 
-
-#freqinput= input()
-
-frequencemenu.add_command(label= str(freq))
-ppmmenu.add_command(label=str(ppm0))
-sampleratemenu.add_command(label=str(sample_rate))
-resampleratemenu.add_command(label=str(re_sample_rate))
-
 deuxiememenu.add_command(label="lancer la recherche usb...", command=lambda:interrogeusb())
 troixiememenu.add_command(label="lancer le spectre", command=lambda:spectrum())
 
@@ -134,10 +126,7 @@ cinquiememenu.add_command(label="dev tartempion-sdr")
 fenetreprincipalemenu.add_cascade(label="paramètres", menu=premiermenu)
 
 premiermenu.add_cascade(label="demodulation :", menu=demodulationmenu)
-premiermenu.add_cascade(label="frequence :", menu=frequencemenu)
-premiermenu.add_cascade(label="ppm :", menu=ppmmenu)
-premiermenu.add_cascade(label="samplerate :", menu=sampleratemenu)
-premiermenu.add_cascade(label="re-samplerate :", menu=resampleratemenu)
+
 
 fenetreprincipalemenu.add_cascade(label="device ?", menu=deuxiememenu)
 fenetreprincipalemenu.add_cascade(label="spectrum", menu=troixiememenu)
