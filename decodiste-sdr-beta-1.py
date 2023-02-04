@@ -90,7 +90,7 @@ demodulation0 = ["wbfm", "wbfm", "fm" , "am", "lsb", "usb", "raw" ]
 freq = int(94.2e6)
 
 sample_rate = int(2400e2)
-re_sample_rate = int(32000)
+re_sample_rate = int(32000)#32000
 ppm0 = int(1)  #not 0 for spectrum
 
 ############
@@ -280,10 +280,10 @@ def spectrum():
         sdr.freq_correction = ppm0  # PPM
         sdr.gain = 'auto'
 
-        fig = plt.figure()
+        fig = plt.figure(figsize = (5, 2))
         
         graph_out = fig.add_subplot(1, 1, 1)
-
+        
         def animate(i):
             graph_out.clear()
             #samples = sdr.read_samples(256*1024)
@@ -291,12 +291,14 @@ def spectrum():
             # use matplotlib to estimate and plot the PSD
             graph_out.psd(samples, NFFT=1024, Fs=sdr.sample_rate /
             1e6, Fc=sdr.center_freq/1e6)
+            
             #graph_out.xlabel('Frequency (MHz)')
             #graph_out.ylabel('Relative power (dB)')
 
 
         try:
-            ani = animation.FuncAnimation(fig, animate, interval=10)
+            ani = animation.FuncAnimation(fig, animate, interval=40)
+            plt.gcf().subplots_adjust(bottom = 0.6)
             plt.show()
         except KeyboardInterrupt:
             pass
