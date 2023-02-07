@@ -42,7 +42,7 @@ import usb.control
 
 from rtlsdr import *
 import math
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg#,NavigationToolbar2Tk)
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 import matplotlib as mpl
 from matplotlib.figure import Figure
@@ -86,7 +86,7 @@ fenetreprincipale.iconphoto(False, icone)
 
 
 text0 = Text(fenetreprincipale, border= 4 )
-text0.place(x=180, y=0, height=135, width=500)
+text0.place(x=180, y=0, height=135, width=505)
 
 #####################################################################
 #            class    parametres par default                        #
@@ -287,31 +287,34 @@ def spectrum():
         sdr.gain = 'auto'
 
         
-        fig = Figure()
-        
-        
+        fig = Figure(figsize=(7.5, 8), dpi=81)
         
         canvas = FigureCanvasTkAgg(fig, master=fenetreprincipale)  # A tk.DrawingArea.
-        canvas.get_tk_widget().pack(side=tkinter.RIGHT)
-        graph_out = fig.add_subplot(1, 1, 1)
-        toolbar = NavigationToolbar2Tk(canvas, fenetreprincipale)
-        toolbar.update()
-        #canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
+        graph_out = fig.add_subplot(211)
+        
+        
         def animate(i):
-            graph_out.clear()
-            
-            samples = sdr.read_samples(4*16384)
-            
+            graph_out.clear()           
+            samples = sdr.read_samples(4*16384)           
             graph_out.psd(samples, NFFT=1024, Fs=sdr.sample_rate /
             1e6, Fc=sdr.center_freq/1e6)
             #graph_out.xlabel('Frequency (MHz)')
             #graph_out.ylabel('Relative power (dB)')
             
-
         try:
             ani = animation.FuncAnimation(fig, animate, interval=10)  
+            #canvas.get_tk_widget()#.grid(padx=680, pady=0)
+            toolbar = NavigationToolbar2Tk(canvas, fenetreprincipale)
+          
+            canvas.get_tk_widget().pack(side=RIGHT)#ipadx=680, ipady=0
             
+            
+            #toolbar.grid(padx=80, pady=00)
+
             canvas.draw()
+            
+            toolbar.pack(side=BOTTOM , fill=BOTH)
+            
         except KeyboardInterrupt:
             pass
         #finally:
@@ -593,16 +596,16 @@ command=lambda: stop_rtl_fm())
 stop.place(x=58, y=0)
 
 kernel = Button(fenetreprincipale, text='kernel', activebackground='red', 
-command=lambda:  kernel_re(), padx=8)
+command=lambda:  kernel_re(), padx=9)
 kernel.place(x=115, y=0)
 
 
 devices = Button(fenetreprincipale, text='devices', activebackground='red', 
-command=lambda:  thread1_start())
-devices.place(x=70, y=95)
+command=lambda:  thread1_start(), padx=22)
+devices.place(x=80, y=95)
 
 spectre = Button(fenetreprincipale, text='spectre', activebackground='red', 
-command=lambda:  spectrum() )
+command=lambda:  spectrum(), padx=19)
 spectre.place(x=0, y=95)
 
 
