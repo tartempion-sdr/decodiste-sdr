@@ -42,7 +42,7 @@ import usb.control
 
 from rtlsdr import *
 import math
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg#,NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 import matplotlib as mpl
 from matplotlib.figure import Figure
@@ -185,50 +185,50 @@ class AppareilUsb:
         self.keysymbole = key_symbole
         self.keysymbolefin = key_symbolefin
 
-idusb01 = AppareilUsb(0x0bda, 0x2832, "all of them",      "Generic RTL2832U (e.g. hama nano)", "#", "\-------------------")
-idusb02 = AppareilUsb(0x0ccd, 0x00a9, "FC0012",           "Terratec Cinergy T Stick Black (rev 1)", "##", "/------------------") 
-idusb03 = AppareilUsb(0x0ccd, 0x00b3, "FC0013", 	      "Terratec NOXON DAB/DAB+ USB dongle (rev 1)", "###", "\-----------------") 
-idusb04 = AppareilUsb(0x0ccd, 0x00d3, "E4000", 	          "Terratec Cinergy T Stick RC (Rev.3)", "####", "/----------------") 
-idusb05 = AppareilUsb(0x0ccd, 0x00e0, "E4000", 	          "Terratec NOXON DAB/DAB+ USB dongle (rev 2)", "#####", "\---------------") 
-idusb06 = AppareilUsb(0x185b, 0x0620, "E4000",             "Compro Videomate U620F", "######", "/--------------") 
-idusb07 = AppareilUsb(0x185b, 0x0650, "E4000",	           "Compro Videomate U650F", "#######", "\-------------") 
-idusb08 = AppareilUsb(0x1f4d, 0xb803, "FC0012", 	       "GTek T803", "########", "/------------") 
-idusb09 = AppareilUsb(0x1f4d, 0xc803, "FC0012", 	       "Lifeview LV5TDeluxe", "#########", "\-----------") 
-idusb10 = AppareilUsb(0x1b80, 0xd3a4, "FC0013", 	       "Twintech UT-40", "##########", "/----------") 
-idusb11 = AppareilUsb(0x1d19, 0x1101, "FC2580",            "Dexatek DK DVB-T Dongle (Logilink VG0002A)", "###########", "\---------") 
-idusb12 = AppareilUsb(0x1d19, 0x1102, "?", 	               "Dexatek DK DVB-T Dongle (MSI DigiVox mini II V3.0)", "############", "/--------") 
-idusb13 = AppareilUsb(0x1d19, 0x1103, "FC2580",            "Dexatek Technology Ltd. DK 5217 DVB-T Dongle", "#############", "\-------") 
-idusb14 = AppareilUsb(0x0458, 0x707f, "?", 	               "Genius TVGo DVB-T03 USB dongle (Ver. B)", "##############", "/------") 
-idusb15 = AppareilUsb(0x1b80, 0xd393, "FC0012",            "GIGABYTE GT-U7300", "###############", "\-----") 
-idusb16 = AppareilUsb(0x1b80, 0xd394, "?", 	               "DIKOM USB-DVBT HD", "################", "/----") 
-idusb17 = AppareilUsb(0x1b80, 0xd395, "FC0012",            "Peak 102569AGPK", "#################", "\---") 
-idusb18 = AppareilUsb(0x1b80, 0xd39d, "FC0012",            "SVEON STV20 DVB-T USB & FM", "##################", "/--")
-idusb19 = AppareilUsb(0x0bda, 0x2838, "FC0012 ou E4000",   "Realtek Semiconductor Corp. RTL2838 DVB-T" + "\n" "               ou ezcap USB 2.0 DVB-T/DAB/FM dongle", "###################", "\-")
-idusb20 = AppareilUsb(0x0bda, 0x2838, "E4000 ou FC0012",   "ezcap USB 2.0 DVB-T/DAB/FM dongle" + "\n" "               ou Realtek Semiconductor Corp. RTL2838 DVB-T", "####################", "/") 
-idusb21 = AppareilUsb(0x0000, 0x0000, "introuvable",       "introuvable", "#####################", "") 
+        idusb01 = AppareilUsb(0x0bda, 0x2832, "all of them",      "Generic RTL2832U (e.g. hama nano)", "#", "\-------------------")
+        idusb02 = AppareilUsb(0x0ccd, 0x00a9, "FC0012",           "Terratec Cinergy T Stick Black (rev 1)", "##", "/------------------") 
+        idusb03 = AppareilUsb(0x0ccd, 0x00b3, "FC0013", 	      "Terratec NOXON DAB/DAB+ USB dongle (rev 1)", "###", "\-----------------") 
+        idusb04 = AppareilUsb(0x0ccd, 0x00d3, "E4000", 	          "Terratec Cinergy T Stick RC (Rev.3)", "####", "/----------------") 
+        idusb05 = AppareilUsb(0x0ccd, 0x00e0, "E4000", 	          "Terratec NOXON DAB/DAB+ USB dongle (rev 2)", "#####", "\---------------") 
+        idusb06 = AppareilUsb(0x185b, 0x0620, "E4000",             "Compro Videomate U620F", "######", "/--------------") 
+        idusb07 = AppareilUsb(0x185b, 0x0650, "E4000",	           "Compro Videomate U650F", "#######", "\-------------") 
+        idusb08 = AppareilUsb(0x1f4d, 0xb803, "FC0012", 	       "GTek T803", "########", "/------------") 
+        idusb09 = AppareilUsb(0x1f4d, 0xc803, "FC0012", 	       "Lifeview LV5TDeluxe", "#########", "\-----------") 
+        idusb10 = AppareilUsb(0x1b80, 0xd3a4, "FC0013", 	       "Twintech UT-40", "##########", "/----------") 
+        idusb11 = AppareilUsb(0x1d19, 0x1101, "FC2580",            "Dexatek DK DVB-T Dongle (Logilink VG0002A)", "###########", "\---------") 
+        idusb12 = AppareilUsb(0x1d19, 0x1102, "?", 	               "Dexatek DK DVB-T Dongle (MSI DigiVox mini II V3.0)", "############", "/--------") 
+        idusb13 = AppareilUsb(0x1d19, 0x1103, "FC2580",            "Dexatek Technology Ltd. DK 5217 DVB-T Dongle", "#############", "\-------") 
+        idusb14 = AppareilUsb(0x0458, 0x707f, "?", 	               "Genius TVGo DVB-T03 USB dongle (Ver. B)", "##############", "/------") 
+        idusb15 = AppareilUsb(0x1b80, 0xd393, "FC0012",            "GIGABYTE GT-U7300", "###############", "\-----") 
+        idusb16 = AppareilUsb(0x1b80, 0xd394, "?", 	               "DIKOM USB-DVBT HD", "################", "/----") 
+        idusb17 = AppareilUsb(0x1b80, 0xd395, "FC0012",            "Peak 102569AGPK", "#################", "\---") 
+        idusb18 = AppareilUsb(0x1b80, 0xd39d, "FC0012",            "SVEON STV20 DVB-T USB & FM", "##################", "/--")
+        idusb19 = AppareilUsb(0x0bda, 0x2838, "FC0012 ou E4000",   "Realtek Semiconductor Corp. RTL2838 DVB-T" + "\n" "               ou ezcap USB 2.0 DVB-T/DAB/FM dongle", "###################", "\-")
+        idusb20 = AppareilUsb(0x0bda, 0x2838, "E4000 ou FC0012",   "ezcap USB 2.0 DVB-T/DAB/FM dongle" + "\n" "               ou Realtek Semiconductor Corp. RTL2838 DVB-T", "####################", "/") 
+        idusb21 = AppareilUsb(0x0000, 0x0000, "introuvable",       "introuvable", "#####################", "") 
 
-appareils = [
-    idusb01,
-    idusb02,
-    idusb03,
-    idusb04,
-    idusb05,
-    idusb06,
-    idusb07,
-    idusb08,
-    idusb09,
-    idusb10,
-    idusb11,
-    idusb12,
-    idusb13,
-    idusb14,
-    idusb15,
-    idusb16,
-    idusb17,
-    idusb18,
-    idusb19,
-    idusb20,
-    idusb21]
+        appareils = [
+            idusb01,
+            idusb02,
+            idusb03,
+            idusb04,
+            idusb05,
+            idusb06,
+            idusb07,
+            idusb08,
+            idusb09,
+            idusb10,
+            idusb11,
+            idusb12,
+            idusb13,
+            idusb14,
+            idusb15,
+            idusb16,
+            idusb17,
+            idusb18,
+            idusb19,
+            idusb20,
+            idusb21]
 
 
 
@@ -286,40 +286,45 @@ def spectrum():
         sdr.freq_correction = ppm0  # PPM
         sdr.gain = 'auto'
 
-        
         fig = Figure(figsize=(7.5, 8), dpi=81)
         
+      
         canvas = FigureCanvasTkAgg(fig, master=fenetreprincipale)  # A tk.DrawingArea.
-        graph_out = fig.add_subplot(211)
+        
+        graph_out = fig.add_subplot(212)
+        graph_out2 = fig.add_subplot(211)
         
         
         def animate(i):
-            graph_out.clear()           
+            graph_out.clear()
+            graph_out2.clear()           
             samples = sdr.read_samples(4*16384)           
             graph_out.psd(samples, NFFT=1024, Fs=sdr.sample_rate /
             1e6, Fc=sdr.center_freq/1e6)
-            #graph_out.xlabel('Frequency (MHz)')
-            #graph_out.ylabel('Relative power (dB)')
+            samples2 = sdr.read_samples(4*16384)
+            graph_out2.specgram(samples2, NFFT=512, Fs=sdr.sample_rate /
+            1e6, Fc=sdr.center_freq/1e6 )
+            #scale_by_freq=True
             
+        
         try:
             ani = animation.FuncAnimation(fig, animate, interval=10)  
             #canvas.get_tk_widget()#.grid(padx=680, pady=0)
             toolbar = NavigationToolbar2Tk(canvas, fenetreprincipale)
-          
             canvas.get_tk_widget().pack(side=RIGHT)#ipadx=680, ipady=0
-            
-            
             #toolbar.grid(padx=80, pady=00)
-
             canvas.draw()
-            
             toolbar.pack(side=BOTTOM , fill=BOTH)
+
+           
+            
             
         except KeyboardInterrupt:
             pass
+
         #finally:
             
-        #    sdr.close() 
+        #sdr.close() 
 
 
 ###################
